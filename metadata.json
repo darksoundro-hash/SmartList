@@ -1,0 +1,7 @@
+{
+  "name": "SmartList AI - Assistente de Compras",
+  "description": "Um assistente inteligente de compras de supermercado que utiliza IA para organizar listas, sugerir itens e otimizar seu orçamento mensal.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}

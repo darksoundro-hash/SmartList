@@ -18,9 +18,11 @@ import { supabase } from '../SmartList/services/src/lib/supabase';
 
 interface SidebarProps {
   activePage: string;
+  isMobileMenuOpen: boolean;
+  setIsMobileMenuOpen: (open: boolean) => void;
 }
 
-export const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
+export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, setIsMobileMenuOpen }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [profile, setProfile] = useState<UserProfile>({
@@ -65,14 +67,31 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
   ];
 
   return (
-    <aside className="hidden md:flex w-20 lg:w-72 flex-col border-r border-gray-200 dark:border-white/5 bg-white dark:bg-background-dark sticky top-0 h-screen z-30 transition-all duration-300 flex-shrink-0">
-      <div className="h-24 flex items-center justify-center lg:justify-start lg:px-8">
-        <Link to="/dashboard" className="flex items-center gap-3">
+    <aside className={`
+      flex w-64 lg:w-72 flex-col border-r border-gray-200 dark:border-white/5 
+      bg-white dark:bg-background-dark sticky top-0 h-screen z-50 transition-all duration-300 flex-shrink-0
+      md:translate-x-0
+      ${isMobileMenuOpen
+        ? 'fixed translate-x-0 slide-in-left'
+        : 'fixed -translate-x-full md:relative md:translate-x-0'
+      }
+    `}>
+      <div className="h-24 flex items-center justify-between px-6 lg:px-8">
+        <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
           <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-background-dark shadow-lg shadow-primary/20">
             <ShoppingCart size={24} fill="currentColor" />
           </div>
-          <span className="hidden lg:block text-xl font-bold tracking-tight text-slate-900 dark:text-white">SmartList</span>
+          <span className="text-xl font-bold tracking-tight text-slate-900 dark:text-white">SmartList</span>
         </Link>
+
+        {/* Mobile Close Button */}
+        <button
+          onClick={() => setIsMobileMenuOpen(false)}
+          className="md:hidden size-10 rounded-xl bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-600 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors touch-target"
+          aria-label="Fechar menu"
+        >
+          <X size={20} />
+        </button>
       </div>
 
       <nav className="flex-1 px-3 lg:px-6 space-y-2 py-4">
@@ -83,13 +102,14 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
             <Link
               key={item.id}
               to={item.path}
-              className={`flex items-center gap-4 px-3 lg:px-4 py-3 rounded-xl transition-all relative overflow-hidden group ${isActive
+              onClick={() => setIsMobileMenuOpen(false)}
+              className={`flex items-center gap-4 px-4 py-3.5 rounded-xl transition-all relative overflow-hidden group min-h-touch ${isActive
                 ? 'bg-primary/10 text-primary dark:text-primary'
                 : 'text-slate-500 dark:text-slate-400 hover:bg-slate-100 dark:hover:bg-white/5'
                 }`}
             >
               <Icon size={24} className={isActive ? 'text-primary' : 'group-hover:text-primary transition-colors'} />
-              <span className="hidden lg:block font-medium">{item.label}</span>
+              <span className="font-medium">{item.label}</span>
             </Link>
           );
         })}

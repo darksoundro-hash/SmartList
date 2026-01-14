@@ -1,56 +1,125 @@
-
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SmartList AI - Assistente de Compras</title>
-    <link rel="icon" type="image/svg+xml" href="/favicon.svg">
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
-    <script>
-      tailwind.config = {
-        darkMode: 'class',
-        theme: {
-          extend: {
-            colors: {
-              "primary": "#13ec5b",
-              "background-light": "#f6f8f6",
-              "background-dark": "#102216",
-              "surface-dark": "#193322",
-              "surface-darker": "#112217",
-              "border-dark": "#326744",
-              "border-green": "#23482f",
-              "text-muted": "#92c9a4",
-              "text-secondary": "#92c9a4"
-            },
-            fontFamily: {
-              sans: ['Inter', 'sans-serif'],
-            },
-            borderRadius: {
-              'DEFAULT': '1rem',
-              'lg': '2rem',
-              'xl': '3rem',
-            }
+  <meta charset="UTF-8">
+
+  <!-- Mobile Viewport Optimization -->
+  <meta name="viewport"
+    content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+
+  <!-- Primary Meta Tags -->
+  <title>SmartList AI - Assistente de Compras</title>
+  <meta name="title" content="SmartList AI - Assistente de Compras">
+  <meta name="description"
+    content="Gerencie suas compras com eficiência e inteligência. Listas inteligentes, controle financeiro e recomendações personalizadas.">
+  <meta name="keywords" content="lista de compras, mercado, organização, IA, inteligência artificial, economia">
+
+  <!-- Mobile Web App Capable -->
+  <meta name="mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="SmartList">
+
+  <!-- Theme Colors -->
+  <meta name="theme-color" content="#102216" media="(prefers-color-scheme: dark)">
+  <meta name="theme-color" content="#f6f8f6" media="(prefers-color-scheme: light)">
+  <meta name="msapplication-TileColor" content="#13ec5b">
+  <meta name="msapplication-navbutton-color" content="#13ec5b">
+
+  <!-- Icons -->
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg">
+  <link rel="apple-touch-icon" href="/favicon.svg">
+  <link rel="manifest" href="/manifest.json">
+
+  <!-- Preconnect and Preload for Performance -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link rel="dns-prefetch" href="https://esm.sh">
+  <link rel="preload" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    as="style">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap"
+    rel="stylesheet">
+
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        screens: {
+          'xs': '320px',
+          'sm': '480px',
+          'md': '768px',
+          'lg': '1024px',
+          'xl': '1280px',
+          '2xl': '1536px',
+        },
+        extend: {
+          colors: {
+            "primary": "#13ec5b",
+            "background-light": "#f6f8f6",
+            "background-dark": "#102216",
+            "surface-dark": "#193322",
+            "surface-darker": "#112217",
+            "border-dark": "#326744",
+            "border-green": "#23482f",
+            "border-light": "#e5e7eb",
+            "text-muted": "#92c9a4",
+            "text-secondary": "#92c9a4"
+          },
+          fontFamily: {
+            sans: ['Inter', 'sans-serif'],
+          },
+          borderRadius: {
+            'DEFAULT': '1rem',
+            'lg': '2rem',
+            'xl': '3rem',
+          },
+          spacing: {
+            'safe-top': 'env(safe-area-inset-top)',
+            'safe-bottom': 'env(safe-area-inset-bottom)',
+            'safe-left': 'env(safe-area-inset-left)',
+            'safe-right': 'env(safe-area-inset-right)',
+          },
+          minHeight: {
+            'touch': '44px',
+            'touch-comfortable': '48px',
+          },
+          minWidth: {
+            'touch': '44px',
+            'touch-comfortable': '48px',
           }
         }
       }
-    </script>
-    <style>
-      ::-webkit-scrollbar { width: 8px; height: 8px; }
-      ::-webkit-scrollbar-track { background: #102216; }
-      ::-webkit-scrollbar-thumb { background: #326744; border-radius: 4px; }
-      ::-webkit-scrollbar-thumb:hover { background: #13ec5b; }
-      
-      .glass-panel {
-        background: rgba(25, 51, 34, 0.7);
-        backdrop-filter: blur(12px);
-        border: 1px solid rgba(19, 236, 91, 0.1);
-      }
-    </style>
-<script type="importmap">
+    }
+  </script>
+  <style>
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #102216;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #326744;
+      border-radius: 4px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #13ec5b;
+    }
+
+    .glass-panel {
+      background: rgba(25, 51, 34, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(19, 236, 91, 0.1);
+    }
+  </style>
+  <script type="importmap">
 {
   "imports": {
     "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
@@ -62,10 +131,13 @@
   }
 }
 </script>
-<link rel="stylesheet" href="/index.css">
+  <link rel="stylesheet" href="/index.css">
 </head>
-<body class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white min-h-screen antialiased">
-    <div id="root"></div>
-<script type="module" src="/index.tsx"></script>
+
+<body
+  class="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white min-h-screen antialiased">
+  <div id="root"></div>
+  <script type="module" src="/index.tsx"></script>
 </body>
+
 </html>

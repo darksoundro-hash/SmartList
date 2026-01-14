@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Layout } from '../components/Layout';
 import {
    TrendingDown,
    TrendingUp,
@@ -85,11 +85,8 @@ const Finances: React.FC = () => {
    };
 
    return (
-      <div className="flex min-h-screen w-full bg-background-light dark:bg-background-dark text-white overflow-hidden font-sans">
-         <Sidebar activePage="finances" />
-
-         <main className="flex-1 flex flex-col h-screen overflow-y-auto relative">
-            <header className="h-20 flex items-center justify-between px-6 lg:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
+      <Layout activePage="finances">
+            <header className="h-20 flex items-center justify-between px-4 md:px-6 lg:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
                <div className="flex flex-col">
                   <h1 className="text-xl font-black text-white uppercase tracking-tight">Painel Financeiro</h1>
                   <p className="text-[10px] text-text-secondary font-black uppercase tracking-widest opacity-60">Análise de investimentos em mantimentos</p>
@@ -258,9 +255,8 @@ const Finances: React.FC = () => {
                   </div>
                </div>
             </div>
-         </main>
          <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 10% 90%, #13ec5b 0%, transparent 40%)" }}></div>
-      </div>
+      </Layout>
    );
 };
 

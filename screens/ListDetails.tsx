@@ -608,67 +608,79 @@ const ListDetails: React.FC = () => {
                     </div>
                   ) : (
                     filteredItems.map(item => (
-                      <div key={item.id} className="grid grid-cols-12 gap-2 md:gap-4 px-4 md:px-6 py-5 items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all group">
-                        <div className="col-span-1 flex items-center">
+                      <div key={item.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 px-4 md:px-6 py-4 md:py-5 items-start md:items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all group border-b border-gray-50 dark:border-white/5 last:border-0">
+                        {/* Linha Superior Mobile / Coluna 1 e 2 Desktop */}
+                        <div className="flex w-full md:contents items-center justify-between">
+                          <div className="flex items-center gap-3 md:col-span-5 w-full">
+                            <button
+                              onClick={() => toggleItem(item.id)}
+                              className="focus:outline-none transition-transform active:scale-90 shrink-0"
+                            >
+                              {item.bought ? (
+                                <CheckCircle2 size={24} className="text-primary fill-primary/10" />
+                              ) : (
+                                <Circle size={24} className="text-slate-300 dark:text-text-secondary hover:text-primary transition-colors" />
+                              )}
+                            </button>
+                            <div className="flex flex-col flex-1 min-w-0 mr-2">
+                              <span className={`font-bold text-sm md:text-base uppercase tracking-tight truncate transition-all ${item.bought ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                                {item.name}
+                              </span>
+                              <span className="text-slate-400 dark:text-text-secondary text-[10px] md:text-xs truncate">{item.category}</span>
+                            </div>
+                          </div>
+
+                          {/* Botão de Excluir Mobile (Visível no topo direito) */}
                           <button
-                            onClick={() => toggleItem(item.id)}
-                            className="focus:outline-none transition-transform active:scale-90"
+                            onClick={() => deleteItem(item.id)}
+                            className="md:hidden p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"
                           >
-                            {item.bought ? (
-                              <CheckCircle2 size={24} className="text-primary fill-primary/10" />
-                            ) : (
-                              <Circle size={24} className="text-slate-300 dark:text-text-secondary hover:text-primary transition-colors" />
-                            )}
+                            <X size={20} />
                           </button>
                         </div>
 
-                        <div className="col-span-4 flex flex-col justify-center">
-                          <span className={`font-bold text-sm md:text-base uppercase tracking-tight transition-all ${item.bought ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
-                            {item.name}
-                          </span>
-                          <span className="text-slate-400 dark:text-text-secondary text-[10px] md:text-xs">{item.category}</span>
-                        </div>
-
-                        <div className="col-span-6 flex items-center justify-end gap-3 md:gap-6">
-                          {/* Seletor de Quantidade */}
-                          <div className="flex items-center bg-slate-100 dark:bg-black/40 rounded-full border border-gray-200 dark:border-border-green/50 overflow-hidden h-10 shrink-0 shadow-inner">
-                            <button
-                              onClick={() => updateQuantity(item.id, -1)}
-                              className="p-1.5 px-3 hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors h-full flex items-center"
-                            >
-                              <Minus size={14} />
-                            </button>
-                            <span className="w-10 text-center text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{item.quantity}x</span>
-                            <button
-                              onClick={() => updateQuantity(item.id, 1)}
-                              className="p-1.5 px-3 hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors h-full flex items-center"
-                            >
-                              <Plus size={14} />
-                            </button>
-                          </div>
-
-                          {/* Campo de Preço */}
-                          <div className="relative">
-                            <div className="flex items-center gap-1 bg-slate-100 dark:bg-black/20 rounded-lg px-3 h-10 border border-transparent focus-within:border-primary/50 transition-colors shadow-inner">
-                              <span className="text-xs font-bold text-slate-400 dark:text-text-secondary">R$</span>
-                              <input
-                                type="text"
-                                className="bg-transparent border-none p-0 w-16 text-right text-sm font-bold text-slate-900 dark:text-white focus:ring-0 outline-none"
-                                defaultValue={item.unitPrice.toFixed(2).replace('.', ',')}
-                                onBlur={(e) => updatePrice(item.id, e.target.value)}
-                                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                              />
+                        {/* Linha Inferior Mobile / Coluna 3 e 4 Desktop */}
+                        <div className="flex items-center justify-between w-full md:col-span-7 md:justify-end gap-3 md:gap-6 pl-9 md:pl-0">
+                          <div className="flex items-center gap-3 ml-auto md:ml-0">
+                            {/* Seletor de Quantidade */}
+                            <div className="flex items-center bg-slate-100 dark:bg-black/40 rounded-full border border-gray-200 dark:border-border-green/50 overflow-hidden h-9 md:h-10 shrink-0 shadow-inner">
+                              <button
+                                onClick={() => updateQuantity(item.id, -1)}
+                                className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
+                              >
+                                <Minus size={14} />
+                              </button>
+                              <span className="w-8 md:w-10 text-center text-xs md:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{item.quantity}x</span>
+                              <button
+                                onClick={() => updateQuantity(item.id, 1)}
+                                className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
+                              >
+                                <Plus size={14} />
+                              </button>
                             </div>
-                            <div className="absolute top-full left-1/2 -translate-x-1/2 text-[10px] text-slate-400 dark:text-text-secondary font-bold whitespace-nowrap mt-1 leading-none">
-                              Total: {formatCurrency(item.unitPrice * item.quantity)}
+
+                            {/* Campo de Preço */}
+                            <div className="relative">
+                              <div className="flex items-center gap-1 bg-slate-100 dark:bg-black/20 rounded-lg px-2 md:px-3 h-9 md:h-10 border border-transparent focus-within:border-primary/50 transition-colors shadow-inner w-24 md:w-auto">
+                                <span className="text-xs font-bold text-slate-400 dark:text-text-secondary">R$</span>
+                                <input
+                                  type="text"
+                                  className="bg-transparent border-none p-0 w-full text-right text-sm font-bold text-slate-900 dark:text-white focus:ring-0 outline-none"
+                                  defaultValue={item.unitPrice.toFixed(2).replace('.', ',')}
+                                  onBlur={(e) => updatePrice(item.id, e.target.value)}
+                                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                                />
+                              </div>
+                              <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 text-[10px] text-slate-400 dark:text-text-secondary font-bold whitespace-nowrap mt-1 leading-none">
+                                Total: {formatCurrency(item.unitPrice * item.quantity)}
+                              </div>
                             </div>
                           </div>
-                        </div>
 
-                        <div className="col-span-1 flex justify-end">
+                          {/* Botão Excluir Desktop */}
                           <button
                             onClick={() => deleteItem(item.id)}
-                            className="p-1 text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                            className="hidden md:block p-1 text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
                           >
                             <X size={18} />
                           </button>

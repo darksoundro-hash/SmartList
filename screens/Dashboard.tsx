@@ -25,59 +25,13 @@ const GROCERY_IMAGES = [
   'https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&q=80&w=800', // Grocery bag
 ];
 
-const DashboardContent: React.FC<{ activePage: string }> = ({ activePage }) => {
-  const navigate = useNavigate();
-  // ... rest of component logic ...
-  // Wait, I need to wrap the content to use the hook if the Layout is inside Dashboard?
-  // No, Dashboard is inside App, App renders Dashboard, Dashboard renders Layout.
-  // Layout provides the context. Therefore, direct children of Layout can use context.
-  // BUT Dashboard *renders* Layout. The content inside Layout can use the context.
-  // So I should separate the inner content or just pass the trigger if easier.
-  // Actually, standard pattern: Dashboard renders Layout. Inside Layout tags, we have the dashboard content.
-  // So the content INSIDE <Layout>...</Layout> can use useMobileMenu.
-  // I need to structure this correctly.
-
-  // Let's refactor: Dashboard renders Layout wrapping everything.
-  // I will make a DashboardInner component or just use the hook inside a child component?
-  // No, I can't use the hook in Dashboard component itself because Dashboard is the one rendering the Provider (via Layout).
-  // This is a classic "Provider at the same level" issue.
-
-  // Solution: Layout should probably be at App level or I need a small wrapper.
-  // Or simpler: Pass a prop? No, I wanted to avoid props.
-  // Wait, `Layout` now provides the context.
-  // If I do:
-  // <Layout>
-  //   <Header /> (needs context)
-  //   <Content />
-  // </Layout>
-  // Then Header can use the hook.
-
-  // Currently Dashboard is one big component. I will split the Header part or use a sub-component for the content.
-  // Actually, simply moving the content to a sub-component defined in the same file is the easiest way.
-  return null;
-}
-// Aborting this specific replace to rethink the component structure plan.
-
-import { GroceryList } from '../types';
-import { supabase } from '../SmartList/services/src/lib/supabase';
-
-const GROCERY_IMAGES = [
-  'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800', // Market fruit
-  'https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80&w=800', // Produce
-  'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=800', // Fresh produce
-  'https://images.unsplash.com/photo-1601004869352-7440d0f83ce6?auto=format&fit=crop&q=80&w=800', // Fruits
-  'https://images.unsplash.com/photo-1597393312915-1fb688abec81?auto=format&fit=crop&q=80&w=800', // Veggies 2
-  'https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&q=80&w=800', // Grocery bag
-];
-
-const Dashboard: React.FC = () => {
+const DashboardContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
+  const { openMobileMenu } = useMobileMenu();
   const [lists, setLists] = useState<GroceryList[]>([]);
   const [userName, setUserName] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
-
-  const activePage = location.pathname.includes('/lists') ? 'lists' : 'dashboard';
 
   useEffect(() => {
     fetchLists();
@@ -158,15 +112,18 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <Layout activePage={activePage}>
-      <header className="h-24 flex items-center justify-between px-6 lg:px-10 border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
+    <>
+      <header className="h-20 lg:h-24 flex items-center justify-between px-4 lg:px-10 border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
         <div className="flex items-center gap-4 md:hidden">
-          <button className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center">
-            <span className="material-symbols-outlined">menu</span>
+          <button
+            onClick={openMobileMenu}
+            className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+          >
+            <Menu size={20} />
           </button>
-          <span className="text-lg font-bold">SmartList</span>
+          <span className="text-lg font-bold text-slate-900 dark:text-white">SmartList</span>
         </div>
-        <h2 className="text-xl font-bold hidden md:block opacity-0 lg:opacity-100">Minhas Listas</h2>
+        <h2 className="text-xl font-bold hidden md:block opacity-0 lg:opacity-100 text-slate-900 dark:text-white">Minhas Listas</h2>
         <div className="flex items-center gap-4 flex-1 md:flex-none justify-end">
           <label className="hidden md:flex items-center bg-slate-100 dark:bg-surface-dark rounded-full px-4 h-11 w-64 lg:w-80 border border-transparent focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/20 transition-all cursor-text group">
             <Search size={18} className="text-slate-400 group-hover:text-primary" />
@@ -180,24 +137,24 @@ const Dashboard: React.FC = () => {
         </div>
       </header>
 
-      <div className="flex-1 overflow-y-auto p-6 lg:p-10 space-y-10 pb-20">
+      <div className="flex-1 overflow-y-auto p-4 lg:p-10 space-y-8 lg:space-y-10 pb-24">
         <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
           <div className="space-y-2">
-            <h1 className="text-4xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
+            <h1 className="text-3xl md:text-5xl font-black tracking-tight text-slate-900 dark:text-white">
               Boa noite, <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-green-400">{userName || 'Usuário'}</span>
             </h1>
-            <p className="text-slate-500 dark:text-slate-400 text-lg max-w-xl">
+            <p className="text-slate-500 dark:text-slate-400 text-base md:text-lg max-w-xl">
               Gerencie suas compras com eficiência e inteligência.
             </p>
           </div>
-          <button onClick={() => navigate('/create-list')} className="bg-primary hover:bg-[#0fdc50] text-background-dark h-12 md:h-14 px-8 rounded-full font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_-6px_rgba(19,236,91,0.4)] whitespace-nowrap">
+          <button onClick={() => navigate('/create-list')} className="bg-primary hover:bg-[#0fdc50] text-background-dark h-12 md:h-14 px-8 rounded-full font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_-6px_rgba(19,236,91,0.4)] whitespace-nowrap w-full md:w-auto">
             <PlusCircle size={24} />
             Criar Nova Lista
           </button>
         </div>
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] flex flex-col justify-between min-h-[180px] relative overflow-hidden group hover:ring-1 hover:ring-primary/30 transition-all duration-300 border border-gray-100 dark:border-white/5">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] flex flex-col justify-between min-h-[160px] md:min-h-[180px] relative overflow-hidden group hover:ring-1 hover:ring-primary/30 transition-all duration-300 border border-gray-100 dark:border-white/5">
             <div className="absolute -right-6 -top-6 p-6 opacity-5 group-hover:opacity-10 transition-opacity bg-primary rounded-full blur-3xl size-40"></div>
             <div className="flex justify-between items-start z-10">
               <div className="flex flex-col gap-1">
@@ -215,7 +172,7 @@ const Dashboard: React.FC = () => {
               </p>
             </div>
           </div>
-          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] flex flex-col justify-between min-h-[180px] relative overflow-hidden group hover:ring-1 hover:ring-primary/30 transition-all duration-300 border border-gray-100 dark:border-white/5">
+          <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] flex flex-col justify-between min-h-[160px] md:min-h-[180px] relative overflow-hidden group hover:ring-1 hover:ring-primary/30 transition-all duration-300 border border-gray-100 dark:border-white/5">
             <div className="absolute -right-6 -top-6 p-6 opacity-5 group-hover:opacity-10 transition-opacity bg-primary rounded-full blur-3xl size-40"></div>
             <div className="flex justify-between items-start z-10">
               <div className="flex flex-col gap-1">
@@ -231,7 +188,7 @@ const Dashboard: React.FC = () => {
 
         <section>
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-xl font-bold flex items-center gap-2">
+            <h3 className="text-xl font-bold flex items-center gap-2 text-slate-900 dark:text-white">
               Minhas Listas
               <span className="bg-slate-200 dark:bg-white/10 text-slate-600 dark:text-slate-300 text-xs px-2 py-0.5 rounded-full">{lists.length}</span>
             </h3>
@@ -256,7 +213,7 @@ const Dashboard: React.FC = () => {
             : "flex flex-col gap-4"
           }>
             {viewMode === 'grid' && (
-              <button onClick={() => navigate('/create-list')} className="group relative flex flex-col items-center justify-center h-[340px] rounded-[2rem] border-2 border-dashed border-slate-300 dark:border-white/10 bg-transparent hover:bg-primary/5 hover:border-primary transition-all duration-300">
+              <button onClick={() => navigate('/create-list')} className="group relative flex flex-col items-center justify-center h-[340px] rounded-[2rem] border-2 border-dashed border-slate-300 dark:border-white/10 bg-transparent hover:bg-primary/5 hover:border-primary transition-all duration-300 min-h-[300px]">
                 <div className="size-20 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-primary group-hover:text-background-dark transition-all duration-300 shadow-sm">
                   <PlusCircle size={32} className="text-slate-400 group-hover:text-background-dark" />
                 </div>
@@ -269,7 +226,7 @@ const Dashboard: React.FC = () => {
               viewMode === 'grid' ? (
                 <div
                   key={list.id}
-                  className="group bg-white dark:bg-surface-dark rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 transition-all duration-300 hover:-translate-y-1 flex flex-col h-[340px] border border-gray-100 dark:border-white/5 cursor-pointer"
+                  className="group bg-white dark:bg-surface-dark rounded-[2rem] overflow-hidden hover:shadow-2xl hover:shadow-black/10 dark:hover:shadow-black/40 transition-all duration-300 hover:-translate-y-1 flex flex-col h-[340px] border border-gray-100 dark:border-white/5 cursor-pointer min-h-[300px]"
                   onClick={() => navigate(`/list-details/${list.id}`)}
                 >
                   <div
@@ -281,7 +238,7 @@ const Dashboard: React.FC = () => {
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
-                    <div className="absolute top-4 right-4 z-10 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <div className="absolute top-4 right-4 z-10 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
                       <button className="size-8 rounded-full bg-black/40 backdrop-blur-md flex items-center justify-center text-white hover:bg-primary hover:text-black transition-colors">
                         <Edit size={14} />
                       </button>
@@ -355,6 +312,17 @@ const Dashboard: React.FC = () => {
           </div>
         </section>
       </div>
+    </>
+  );
+};
+
+const Dashboard: React.FC = () => {
+  const location = useLocation();
+  const activePage = location.pathname.includes('/lists') ? 'lists' : 'dashboard';
+
+  return (
+    <Layout activePage={activePage}>
+      <DashboardContent />
     </Layout>
   );
 };

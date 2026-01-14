@@ -58,6 +58,11 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
     return () => window.removeEventListener('storage', loadProfile);
   }, []);
 
+  // Fechar menu mobile ao clicar em um link
+  useEffect(() => {
+    setIsMobileMenuOpen(false);
+  }, [location.pathname]);
+
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Painel', path: '/dashboard' },
     { id: 'lists', icon: ClipboardList, label: 'Minhas Listas', path: '/lists' },
@@ -72,7 +77,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
       bg-white dark:bg-background-dark fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out md:static md:translate-x-0
       ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
     `}>
-      <div className="h-24 flex items-center justify-between px-6 lg:px-8">
+      <div className="h-20 lg:h-24 flex items-center justify-between px-6 lg:px-8">
         <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>
           <div className="size-10 bg-primary rounded-xl flex items-center justify-center text-background-dark shadow-lg shadow-primary/20">
             <ShoppingCart size={24} fill="currentColor" />
@@ -90,7 +95,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
         </button>
       </div>
 
-      <nav className="flex-1 px-3 lg:px-6 space-y-2 py-4">
+      <nav className="flex-1 px-3 lg:px-6 space-y-2 py-4 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = activePage === item.id;
           const Icon = item.icon;
@@ -118,25 +123,27 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
         </Link>
       </div>
 
-      <div className="p-4 lg:p-6 mt-auto">
+      <div className="p-4 lg:p-6 mt-auto border-t border-gray-200 dark:border-white/5">
         <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-surface-dark rounded-2xl border border-transparent dark:border-white/5 hover:border-primary/30 transition-colors group">
           <div
             onClick={() => navigate('/profile')}
-            className="flex items-center gap-3 flex-1 cursor-pointer"
+            className="flex items-center gap-3 flex-1 cursor-pointer min-w-0"
           >
             <div className="size-10 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-white/10" style={{ backgroundImage: `url('${profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.name || 'U'}&background=13ec5b&color=0b1810`}')` }}></div>
-            <div className="hidden lg:flex flex-col overflow-hidden">
+            <div className="flex flex-col overflow-hidden min-w-0 flex-1">
               <p className="text-sm font-bold truncate text-slate-900 dark:text-white group-hover:text-primary transition-colors">{profile.name}</p>
               <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{profile.isPremium ? 'Usuário Premium' : 'Usuário Free'}</p>
             </div>
           </div>
-
           <button
             onClick={(e) => {
               e.stopPropagation();
-              if (confirm('Deseja realmente sair da conta?')) navigate('/');
+              if (confirm('Deseja realmente sair da conta?')) {
+                supabase.auth.signOut();
+                navigate('/');
+              }
             }}
-            className="hidden lg:flex p-2 text-slate-400 hover:text-red-500 hover:bg-white/50 dark:hover:bg-black/20 rounded-lg transition-all ml-1"
+            className="flex p-2 text-slate-400 hover:text-red-500 hover:bg-white/50 dark:hover:bg-black/20 rounded-lg transition-all ml-1 flex-shrink-0 min-h-[44px] min-w-[44px]"
             title="Sair da conta"
           >
             <LogOut size={18} />

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
-import { Sidebar } from '../components/Sidebar';
+import { Layout } from '../components/Layout';
 import {
   Download,
   ChevronLeft,
@@ -158,10 +158,8 @@ const History: React.FC = () => {
   };
 
   return (
-    <div className="bg-background-light dark:bg-background-dark font-sans text-slate-900 dark:text-white antialiased overflow-hidden h-screen flex">
-      <Sidebar activePage="history" />
-      <main className="flex-1 flex flex-col h-full overflow-hidden relative w-full">
-        <header className="h-20 flex flex-none items-center justify-between px-6 md:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
+    <Layout activePage="history">
+      <header className="h-20 flex flex-none items-center justify-between px-4 md:px-6 lg:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
           <div className="flex flex-col">
             <h1 className="text-xl md:text-2xl font-black text-white leading-none">Histórico de Compras</h1>
             <p className="text-text-secondary text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Visualize e analise seus gastos mensais.</p>
@@ -262,9 +260,9 @@ const History: React.FC = () => {
             </div>
           </div>
         </div>
-      </main>
+      </div>
       <div className="fixed inset-0 pointer-events-none z-0 opacity-[0.03]" style={{ backgroundImage: "radial-gradient(circle at 80% 20%, #13ec5b 0%, transparent 40%)" }}></div>
-    </div>
+    </Layout>
   );
 };
 

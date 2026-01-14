@@ -46,7 +46,11 @@ export const Layout: React.FC<LayoutProps> = ({ children, activePage }) => {
     return (
         <MobileMenuContext.Provider value={{ isMobileMenuOpen, openMobileMenu, closeMobileMenu, toggleMobileMenu }}>
             <div className="flex h-screen w-full overflow-hidden bg-background-light dark:bg-background-dark text-slate-900 dark:text-white font-sans transition-colors duration-300">
-                <Sidebar activePage={activePage} isMobileMenuOpen={isMobileMenuOpen} setIsMobileMenuOpen={setIsMobileMenuOpen} />
+                <Sidebar
+                    activePage={activePage}
+                    isMobileMenuOpen={isMobileMenuOpen}
+                    setIsMobileMenuOpen={setIsMobileMenuOpen}
+                />
 
                 {/* Mobile Menu Overlay */}
                 <div

@@ -169,6 +169,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage }) => {
     </>
   );
 
+  console.log("isMobileMenuOpen (outside SidebarContent):", isMobileMenuOpen);
+
   return (
     <>
       {/* Botão Hambúrguer para Mobile */}

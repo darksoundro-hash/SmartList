@@ -11,9 +11,11 @@ import {
   Edit,
   LayoutGrid,
   List as ListIcon,
-  Menu
+  Menu,
+  X,
+  Check
 } from 'lucide-react';
-import { GroceryList } from '../types';
+import { GroceryList, Notification } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
 const GROCERY_IMAGES = [
@@ -32,6 +34,48 @@ const DashboardContent: React.FC = () => {
   const [lists, setLists] = useState<GroceryList[]>([]);
   const [userName, setUserName] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  // Notification State
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState<Notification[]>([
+    { id: '1', title: 'Bem-vindo!', message: 'Comece criando sua primeira lista de compras inteligente.', time: 'Agora', read: false, type: 'info' },
+    { id: '2', title: 'Dica de Economia', message: 'Produtos da estação estão 20% mais baratos esta semana.', time: '2h atrás', read: false, type: 'success' },
+    { id: '3', title: 'Meta Atingida', message: 'Parabéns! Você se manteve no orçamento em sua última compra.', time: '1d atrás', read: true, type: 'info' }
+  ]);
+
+  const unreadCount = notifications.filter(n => !n.read).length;
+
+  const markAsRead = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNotifications(prev => prev.map(n => n.id === id ? { ...n, read: true } : n));
+  };
+
+  const markAllAsRead = () => {
+    setNotifications(prev => prev.map(n => ({ ...n, read: true })));
+  };
+
+  const removeNotification = (id: string, e: React.MouseEvent) => {
+    e.stopPropagation();
+    setNotifications(prev => prev.filter(n => n.id !== id));
+  };
+
+  // Close notifications when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      const target = event.target as Element;
+      if (!target.closest('.notification-dropdown') && !target.closest('.notification-trigger')) {
+        setShowNotifications(false);
+      }
+    };
+
+    if (showNotifications) {
+      document.addEventListener('click', handleClickOutside);
+    }
+
+    return () => {
+      document.removeEventListener('click', handleClickOutside);
+    };
+  }, [showNotifications]);
 
   useEffect(() => {
     fetchLists();
@@ -130,10 +174,78 @@ const DashboardContent: React.FC = () => {
             <input className="bg-transparent border-none focus:ring-0 text-sm w-full ml-2 placeholder-slate-500 dark:placeholder-slate-400 dark:text-white" placeholder="Buscar listas..." type="text" />
           </label>
           <div className="h-8 w-px bg-gray-300 dark:bg-white/10 mx-2 hidden md:block"></div>
-          <button className="size-11 rounded-full bg-slate-100 dark:bg-surface-dark border border-transparent hover:border-primary/50 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all relative group">
-            <Bell size={20} className="group-hover:text-primary" />
-            <span className="absolute top-3 right-3.5 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark"></span>
-          </button>
+
+          {/* Notification Button */}
+          <div className="relative">
+            <button
+              onClick={() => setShowNotifications(!showNotifications)}
+              className="notification-trigger size-11 rounded-full bg-slate-100 dark:bg-surface-dark border border-transparent hover:border-primary/50 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all relative group"
+            >
+              <Bell size={20} className="group-hover:text-primary" />
+              {unreadCount > 0 && (
+                <span className="absolute top-3 right-3.5 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark animate-pulse"></span>
+              )}
+            </button>
+
+            {/* Notification Dropdown */}
+            {showNotifications && (
+              <div className="notification-dropdown absolute right-0 top-14 w-80 md:w-96 bg-white dark:bg-surface-dark border border-gray-200 dark:border-white/10 rounded-2xl shadow-2xl overflow-hidden animate-in fade-in slide-in-from-top-4 duration-200 z-50">
+                <div className="p-4 border-b border-gray-200 dark:border-white/5 flex items-center justify-between bg-slate-50/50 dark:bg-black/20">
+                  <h3 className="font-bold text-slate-900 dark:text-white">Notificações</h3>
+                  {unreadCount > 0 && (
+                    <button onClick={markAllAsRead} className="text-xs font-semibold text-primary hover:text-primary/80 transition-colors">
+                      Marcar todas como lidas
+                    </button>
+                  )}
+                </div>
+                <div className="max-h-[60vh] overflow-y-auto">
+                  {notifications.length === 0 ? (
+                    <div className="p-8 text-center text-slate-500 dark:text-slate-400 text-sm">
+                      Nenhuma notificação no momento.
+                    </div>
+                  ) : (
+                    <div className="flex flex-col">
+                      {notifications.map(notification => (
+                        <div
+                          key={notification.id}
+                          onClick={() => markAsRead(notification.id, {} as any)}
+                          className={`p-4 border-b border-gray-100 dark:border-white/5 last:border-0 hover:bg-slate-50 dark:hover:bg-white/5 transition-colors cursor-pointer relative group ${!notification.read ? 'bg-primary/5' : ''}`}
+                        >
+                          <div className="flex gap-3">
+                            <div className={`mt-1 size-2 rounded-full shrink-0 ${!notification.read ? 'bg-primary' : 'bg-transparent'}`}></div>
+                            <div className="flex-1">
+                              <div className="flex justify-between items-start mb-1">
+                                <h4 className={`text-sm ${!notification.read ? 'font-bold text-slate-900 dark:text-white' : 'font-medium text-slate-600 dark:text-slate-300'}`}>{notification.title}</h4>
+                                <span className="text-[10px] text-slate-400 whitespace-nowrap ml-2">{notification.time}</span>
+                              </div>
+                              <p className={`text-xs ${!notification.read ? 'text-slate-700 dark:text-slate-200' : 'text-slate-500 dark:text-slate-500'} leading-relaxed`}>{notification.message}</p>
+                            </div>
+                            <div className="flex flex-col items-center gap-1 opacity-100 md:opacity-0 group-hover:opacity-100 transition-opacity">
+                              <button
+                                onClick={(e) => removeNotification(notification.id, e)}
+                                className="p-1 hover:bg-red-100 dark:hover:bg-red-500/20 text-slate-400 hover:text-red-500 rounded-lg transition-colors"
+                              >
+                                <X size={14} />
+                              </button>
+                              {!notification.read && (
+                                <button
+                                  onClick={(e) => markAsRead(notification.id, e)}
+                                  className="p-1 hover:bg-primary/20 text-primary rounded-lg transition-colors"
+                                  title="Marcar como lida"
+                                >
+                                  <Check size={14} />
+                                </button>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </header>
 

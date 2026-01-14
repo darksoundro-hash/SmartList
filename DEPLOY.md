@@ -58,3 +58,6 @@ Sempre que você fizer push para o GitHub, a Vercel automaticamente:
 ### Página em branco
 - Verifique o console do navegador para erros
 - Confirme que o `vercel.json` está configurado corretamente para SPA routing
+
+## Histórico de Deploys
+- **14/01/2026**: Otimização Mobile Completa (Drawer, Grid, ListDetails responsivo) - Push Manual para Trigger.

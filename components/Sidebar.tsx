@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import {
@@ -11,7 +10,8 @@ import {
   Plus,
   ChevronDown,
   User,
-  LogOut
+  LogOut,
+  X
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
@@ -68,13 +68,9 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
 
   return (
     <aside className={`
-      flex w-64 lg:w-72 flex-col border-r border-gray-200 dark:border-white/5 
-      bg-white dark:bg-background-dark sticky top-0 h-screen z-50 transition-all duration-300 flex-shrink-0
-      md:translate-x-0
-      ${isMobileMenuOpen
-        ? 'fixed translate-x-0 slide-in-left'
-        : 'fixed -translate-x-full md:relative md:translate-x-0'
-      }
+      flex w-72 flex-col border-r border-gray-200 dark:border-white/5 
+      bg-white dark:bg-background-dark fixed inset-y-0 left-0 z-50 transition-transform duration-300 ease-in-out md:static md:translate-x-0
+      ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full'}
     `}>
       <div className="h-24 flex items-center justify-between px-6 lg:px-8">
         <Link to="/dashboard" className="flex items-center gap-3" onClick={() => setIsMobileMenuOpen(false)}>

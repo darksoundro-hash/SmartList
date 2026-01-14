@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { Layout } from '../components/Layout';
+import { Layout, useMobileMenu } from '../components/Layout';
 import {
   TrendingUp,
   ShoppingBasket,
@@ -10,8 +10,54 @@ import {
   Clock,
   Edit,
   LayoutGrid,
-  List as ListIcon
+  List as ListIcon,
+  Menu
 } from 'lucide-react';
+import { GroceryList } from '../types';
+import { supabase } from '../SmartList/services/src/lib/supabase';
+
+const GROCERY_IMAGES = [
+  'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800', // Market fruit
+  'https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80&w=800', // Produce
+  'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=800', // Fresh produce
+  'https://images.unsplash.com/photo-1601004869352-7440d0f83ce6?auto=format&fit=crop&q=80&w=800', // Fruits
+  'https://images.unsplash.com/photo-1597393312915-1fb688abec81?auto=format&fit=crop&q=80&w=800', // Veggies 2
+  'https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&q=80&w=800', // Grocery bag
+];
+
+const DashboardContent: React.FC<{ activePage: string }> = ({ activePage }) => {
+  const navigate = useNavigate();
+  // ... rest of component logic ...
+  // Wait, I need to wrap the content to use the hook if the Layout is inside Dashboard?
+  // No, Dashboard is inside App, App renders Dashboard, Dashboard renders Layout.
+  // Layout provides the context. Therefore, direct children of Layout can use context.
+  // BUT Dashboard *renders* Layout. The content inside Layout can use the context.
+  // So I should separate the inner content or just pass the trigger if easier.
+  // Actually, standard pattern: Dashboard renders Layout. Inside Layout tags, we have the dashboard content.
+  // So the content INSIDE <Layout>...</Layout> can use useMobileMenu.
+  // I need to structure this correctly.
+
+  // Let's refactor: Dashboard renders Layout wrapping everything.
+  // I will make a DashboardInner component or just use the hook inside a child component?
+  // No, I can't use the hook in Dashboard component itself because Dashboard is the one rendering the Provider (via Layout).
+  // This is a classic "Provider at the same level" issue.
+
+  // Solution: Layout should probably be at App level or I need a small wrapper.
+  // Or simpler: Pass a prop? No, I wanted to avoid props.
+  // Wait, `Layout` now provides the context.
+  // If I do:
+  // <Layout>
+  //   <Header /> (needs context)
+  //   <Content />
+  // </Layout>
+  // Then Header can use the hook.
+
+  // Currently Dashboard is one big component. I will split the Header part or use a sub-component for the content.
+  // Actually, simply moving the content to a sub-component defined in the same file is the easiest way.
+  return null;
+}
+// Aborting this specific replace to rethink the component structure plan.
+
 import { GroceryList } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 

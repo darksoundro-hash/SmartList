@@ -15,6 +15,8 @@ import {
   X,
   Check
 } from 'lucide-react';
+import { DashboardSkeleton } from '../components/Skeleton';
+import { useToast } from '../components/ToastContext';
 import { GroceryList, Notification } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
@@ -26,6 +28,8 @@ const DashboardContent: React.FC = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const { openMobileMenu } = useMobileMenu();
+  const { addToast } = useToast();
+  const [isLoading, setIsLoading] = useState(true);
   const [lists, setLists] = useState<GroceryList[]>([]);
   const [userName, setUserName] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
@@ -74,6 +78,10 @@ const DashboardContent: React.FC = () => {
 
   useEffect(() => {
     fetchLists();
+    // Welcome toast
+    setTimeout(() => {
+      addToast('Bem-vindo de volta! 👋', 'success');
+    }, 1500);
   }, []);
 
   const fetchLists = async () => {
@@ -93,6 +101,9 @@ const DashboardContent: React.FC = () => {
       if (error) throw error;
 
       if (data) {
+        // Simulate a small delay for the skeleton effect to be visible and premium feeling
+        await new Promise(resolve => setTimeout(resolve, 800));
+
         const mappedLists: GroceryList[] = data.map((list: any) => ({
           id: list.id,
           name: list.name,
@@ -134,10 +145,31 @@ const DashboardContent: React.FC = () => {
       if (profile) {
         setUserName(profile.name || '');
       }
-    } catch (error) {
       console.error('Error fetching dashboard data:', error);
+      addToast('Erro ao carregar seus dados.', 'error');
+    } finally {
+      setIsLoading(false);
     }
   };
+
+  if (isLoading) {
+    return (
+      <>
+        <header className="h-20 lg:h-24 flex items-center justify-between px-4 lg:px-10 border-b border-gray-200 dark:border-white/5 bg-white/80 dark:bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
+          <div className="flex items-center gap-4 md:hidden">
+            <button
+              onClick={openMobileMenu}
+              className="size-10 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center text-slate-900 dark:text-white hover:bg-slate-200 dark:hover:bg-white/10 transition-colors"
+            >
+              <Menu size={20} />
+            </button>
+            <span className="text-lg font-bold text-slate-900 dark:text-white">SmartList</span>
+          </div>
+        </header>
+        <DashboardSkeleton />
+      </>
+    );
+  }
 
   const calculateProgress = (list: GroceryList) => {
     if (!list.items || list.items.length === 0) return 0;

@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo, useRef } from 'react';
-import { useNavigate, Link, useParams } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import {
   Calendar,
@@ -9,23 +9,18 @@ import {
   ShoppingCart,
   Wallet,
   PiggyBank,
-  Bell,
   Plus,
   Minus,
   CheckCircle2,
   Circle,
   X,
-  Sparkles,
-  Check,
-  Lightbulb,
-  AlertTriangle,
   Pencil,
   ArrowLeft,
   ChevronDown,
   MoreVertical,
-  Play
+  Play,
+  Check
 } from 'lucide-react';
-import { getSmartInsight } from '../SmartList/services/gemini';
 import { GroceryItem, GroceryList } from '../types';
 
 import { supabase } from '../SmartList/services/src/lib/supabase';
@@ -38,7 +33,6 @@ const ListDetails: React.FC = () => {
   const [items, setItems] = useState<GroceryItem[]>([]);
   const [newItemName, setNewItemName] = useState('');
   const [activeTab, setActiveTab] = useState<'all' | 'pending'>('all');
-  const [insight, setInsight] = useState('Analisando sua lista para dar a melhor dica...');
   const [shared, setShared] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -124,23 +118,11 @@ const ListDetails: React.FC = () => {
     return { listTotal, totalBought, progress, remainingBudget, boughtCount, maxBudget };
   }, [items, listData]);
 
+
   const filteredItems = useMemo(() => {
     if (activeTab === 'pending') return items.filter(item => !item.bought);
     return items;
   }, [items, activeTab]);
-
-  useEffect(() => {
-    const fetchInsight = async () => {
-      if (items.length > 0) {
-        const itemNames = items.slice(0, 5).map(i => i.name);
-        // Only run insight occasionally to save tokens/costs? 
-        // Logic kept same as before
-        const res = await getSmartInsight(itemNames);
-        setInsight(res);
-      }
-    };
-    fetchInsight();
-  }, [items.length]);
 
   const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
@@ -560,171 +542,133 @@ const ListDetails: React.FC = () => {
             </div>
           </div>
 
-          <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
-            <div className="xl:col-span-2 flex flex-col gap-6">
-              <form onSubmit={handleAddItem} className="relative z-30">
-                <div className="bg-white dark:bg-surface-dark p-2 rounded-full border border-gray-200 dark:border-border-green flex items-center shadow-lg focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all relative z-20">
-                  <div className="pl-4 pr-2 text-slate-400"><PlusCircle size={20} /></div>
-                  <input
-                    className="flex-1 bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 text-base font-medium h-10 outline-none"
-                    placeholder="Adicionar item (ex: 2kg Maçãs)..."
-                    type="text"
-                    value={newItemName}
-                    onChange={(e) => setNewItemName(e.target.value)}
-                  />
-                  <button type="submit" className="ml-2 h-10 px-6 rounded-full bg-primary text-background-dark font-bold text-sm hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                    Adicionar
+          <div className="flex flex-col gap-6 w-full">
+            <form onSubmit={handleAddItem} className="relative z-30">
+              <div className="bg-white dark:bg-surface-dark p-2 rounded-full border border-gray-200 dark:border-border-green flex items-center shadow-lg focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all relative z-20">
+                <div className="pl-4 pr-2 text-slate-400"><PlusCircle size={20} /></div>
+                <input
+                  className="flex-1 bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 text-base font-medium h-10 outline-none"
+                  placeholder="Adicionar item (ex: 2kg Maçãs)..."
+                  type="text"
+                  value={newItemName}
+                  onChange={(e) => setNewItemName(e.target.value)}
+                />
+                <button type="submit" className="ml-2 h-10 px-6 rounded-full bg-primary text-background-dark font-bold text-sm hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-primary/20">
+                  Adicionar
+                </button>
+              </div>
+            </form>
+
+            <div className="flex flex-col bg-white dark:bg-surface-dark rounded-[2rem] border border-gray-200 dark:border-border-green overflow-hidden min-h-[500px] shadow-xl">
+              <div className="p-4 border-b border-gray-200 dark:border-border-green flex items-center justify-between bg-slate-50 dark:bg-surface-darker/30">
+                <div className="flex gap-2">
+                  <button
+                    onClick={() => setActiveTab('all')}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeTab === 'all' ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500 border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                  >
+                    Todos ({items.length})
+                  </button>
+                  <button
+                    onClick={() => setActiveTab('pending')}
+                    className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeTab === 'pending' ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500 border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
+                  >
+                    Para Comprar ({items.filter(i => !i.bought).length})
                   </button>
                 </div>
-              </form>
-
-              <div className="flex flex-col bg-white dark:bg-surface-dark rounded-[2rem] border border-gray-200 dark:border-border-green overflow-hidden min-h-[500px] shadow-xl">
-                <div className="p-4 border-b border-gray-200 dark:border-border-green flex items-center justify-between bg-slate-50 dark:bg-surface-darker/30">
-                  <div className="flex gap-2">
-                    <button
-                      onClick={() => setActiveTab('all')}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeTab === 'all' ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500 border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
-                    >
-                      Todos ({items.length})
-                    </button>
-                    <button
-                      onClick={() => setActiveTab('pending')}
-                      className={`px-4 py-1.5 rounded-full text-xs font-bold border transition-all ${activeTab === 'pending' ? 'bg-primary/10 text-primary border-primary/20' : 'text-slate-500 border-transparent hover:bg-slate-100 dark:hover:bg-white/5'}`}
-                    >
-                      Para Comprar ({items.filter(i => !i.bought).length})
-                    </button>
-                  </div>
-                  <div className="text-xs text-slate-500 dark:text-text-secondary font-medium">
-                    Progresso: <span className="text-slate-900 dark:text-white font-bold">{stats.progress.toFixed(0)}%</span>
-                  </div>
+                <div className="text-xs text-slate-500 dark:text-text-secondary font-medium">
+                  Progresso: <span className="text-slate-900 dark:text-white font-bold">{stats.progress.toFixed(0)}%</span>
                 </div>
+              </div>
 
-                <div className="flex flex-col divide-y divide-gray-100 dark:divide-border-green h-full">
-                  {filteredItems.length === 0 ? (
-                    <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
-                      <ShoppingCart size={48} className="mb-4 opacity-20" />
-                      <p className="text-lg font-medium">Sua lista está vazia.</p>
-                      <p className="text-sm opacity-60">Adicione itens para começar.</p>
-                    </div>
-                  ) : (
-                    filteredItems.map(item => (
-                      <div key={item.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 px-4 md:px-6 py-4 md:py-5 items-start md:items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all group border-b border-gray-50 dark:border-white/5 last:border-0">
-                        {/* Linha Superior Mobile / Coluna 1 e 2 Desktop */}
-                        <div className="flex w-full md:contents items-center justify-between">
-                          <div className="flex items-center gap-3 md:col-span-5 w-full">
+              <div className="flex flex-col divide-y divide-gray-100 dark:divide-border-green h-full">
+                {filteredItems.length === 0 ? (
+                  <div className="flex-1 flex flex-col items-center justify-center p-12 text-center text-slate-400">
+                    <ShoppingCart size={48} className="mb-4 opacity-20" />
+                    <p className="text-lg font-medium">Sua lista está vazia.</p>
+                    <p className="text-sm opacity-60">Adicione itens para começar.</p>
+                  </div>
+                ) : (
+                  filteredItems.map(item => (
+                    <div key={item.id} className="flex flex-col md:grid md:grid-cols-12 gap-3 md:gap-4 px-4 md:px-6 py-4 md:py-5 items-start md:items-center hover:bg-slate-50 dark:hover:bg-white/5 transition-all group border-b border-gray-50 dark:border-white/5 last:border-0">
+                      {/* Linha Superior Mobile / Coluna 1 e 2 Desktop */}
+                      <div className="flex w-full md:contents items-center justify-between">
+                        <div className="flex items-center gap-3 md:col-span-5 w-full">
+                          <button
+                            onClick={() => toggleItem(item.id)}
+                            className="focus:outline-none transition-transform active:scale-90 shrink-0"
+                          >
+                            {item.bought ? (
+                              <CheckCircle2 size={24} className="text-primary fill-primary/10" />
+                            ) : (
+                              <Circle size={24} className="text-slate-300 dark:text-text-secondary hover:text-primary transition-colors" />
+                            )}
+                          </button>
+                          <div className="flex flex-col flex-1 min-w-0 mr-2">
+                            <span className={`font-bold text-sm md:text-base uppercase tracking-tight truncate transition-all ${item.bought ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
+                              {item.name}
+                            </span>
+                            <span className="text-slate-400 dark:text-text-secondary text-[10px] md:text-xs truncate">{item.category}</span>
+                          </div>
+                        </div>
+
+                        {/* Botão de Excluir Mobile (Visível no topo direito) */}
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          className="md:hidden p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"
+                        >
+                          <X size={20} />
+                        </button>
+                      </div>
+
+                      {/* Linha Inferior Mobile / Coluna 3 e 4 Desktop */}
+                      <div className="flex items-center justify-between w-full md:col-span-7 md:justify-end gap-3 md:gap-6 pl-9 md:pl-0">
+                        <div className="flex items-center gap-3 ml-auto md:ml-0">
+                          {/* Seletor de Quantidade */}
+                          <div className="flex items-center bg-slate-100 dark:bg-black/40 rounded-full border border-gray-200 dark:border-border-green/50 overflow-hidden h-9 md:h-10 shrink-0 shadow-inner">
                             <button
-                              onClick={() => toggleItem(item.id)}
-                              className="focus:outline-none transition-transform active:scale-90 shrink-0"
+                              onClick={() => updateQuantity(item.id, -1)}
+                              className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
                             >
-                              {item.bought ? (
-                                <CheckCircle2 size={24} className="text-primary fill-primary/10" />
-                              ) : (
-                                <Circle size={24} className="text-slate-300 dark:text-text-secondary hover:text-primary transition-colors" />
-                              )}
+                              <Minus size={14} />
                             </button>
-                            <div className="flex flex-col flex-1 min-w-0 mr-2">
-                              <span className={`font-bold text-sm md:text-base uppercase tracking-tight truncate transition-all ${item.bought ? 'text-slate-400 line-through' : 'text-slate-900 dark:text-white'}`}>
-                                {item.name}
-                              </span>
-                              <span className="text-slate-400 dark:text-text-secondary text-[10px] md:text-xs truncate">{item.category}</span>
-                            </div>
+                            <span className="w-8 md:w-10 text-center text-xs md:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{item.quantity}x</span>
+                            <button
+                              onClick={() => updateQuantity(item.id, 1)}
+                              className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
+                            >
+                              <Plus size={14} />
+                            </button>
                           </div>
 
-                          {/* Botão de Excluir Mobile (Visível no topo direito) */}
-                          <button
-                            onClick={() => deleteItem(item.id)}
-                            className="md:hidden p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"
-                          >
-                            <X size={20} />
-                          </button>
-                        </div>
-
-                        {/* Linha Inferior Mobile / Coluna 3 e 4 Desktop */}
-                        <div className="flex items-center justify-between w-full md:col-span-7 md:justify-end gap-3 md:gap-6 pl-9 md:pl-0">
-                          <div className="flex items-center gap-3 ml-auto md:ml-0">
-                            {/* Seletor de Quantidade */}
-                            <div className="flex items-center bg-slate-100 dark:bg-black/40 rounded-full border border-gray-200 dark:border-border-green/50 overflow-hidden h-9 md:h-10 shrink-0 shadow-inner">
-                              <button
-                                onClick={() => updateQuantity(item.id, -1)}
-                                className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
-                              >
-                                <Minus size={14} />
-                              </button>
-                              <span className="w-8 md:w-10 text-center text-xs md:text-sm font-bold text-slate-900 dark:text-white whitespace-nowrap">{item.quantity}x</span>
-                              <button
-                                onClick={() => updateQuantity(item.id, 1)}
-                                className="w-8 md:w-9 h-full hover:bg-white/50 dark:hover:bg-white/10 text-slate-500 dark:text-text-secondary hover:text-slate-900 dark:hover:text-white transition-colors flex items-center justify-center"
-                              >
-                                <Plus size={14} />
-                              </button>
+                          {/* Campo de Preço */}
+                          <div className="relative">
+                            <div className="flex items-center gap-1 bg-slate-100 dark:bg-black/20 rounded-lg px-2 md:px-3 h-9 md:h-10 border border-transparent focus-within:border-primary/50 transition-colors shadow-inner w-24 md:w-auto">
+                              <span className="text-xs font-bold text-slate-400 dark:text-text-secondary">R$</span>
+                              <input
+                                type="text"
+                                className="bg-transparent border-none p-0 w-full text-right text-sm font-bold text-slate-900 dark:text-white focus:ring-0 outline-none"
+                                defaultValue={item.unitPrice.toFixed(2).replace('.', ',')}
+                                onBlur={(e) => updatePrice(item.id, e.target.value)}
+                                onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
+                              />
                             </div>
-
-                            {/* Campo de Preço */}
-                            <div className="relative">
-                              <div className="flex items-center gap-1 bg-slate-100 dark:bg-black/20 rounded-lg px-2 md:px-3 h-9 md:h-10 border border-transparent focus-within:border-primary/50 transition-colors shadow-inner w-24 md:w-auto">
-                                <span className="text-xs font-bold text-slate-400 dark:text-text-secondary">R$</span>
-                                <input
-                                  type="text"
-                                  className="bg-transparent border-none p-0 w-full text-right text-sm font-bold text-slate-900 dark:text-white focus:ring-0 outline-none"
-                                  defaultValue={item.unitPrice.toFixed(2).replace('.', ',')}
-                                  onBlur={(e) => updatePrice(item.id, e.target.value)}
-                                  onKeyDown={(e) => e.key === 'Enter' && (e.target as HTMLInputElement).blur()}
-                                />
-                              </div>
-                              <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 text-[10px] text-slate-400 dark:text-text-secondary font-bold whitespace-nowrap mt-1 leading-none">
-                                Total: {formatCurrency(item.unitPrice * item.quantity)}
-                              </div>
+                            <div className="absolute top-full right-0 md:left-1/2 md:-translate-x-1/2 text-[10px] text-slate-400 dark:text-text-secondary font-bold whitespace-nowrap mt-1 leading-none">
+                              Total: {formatCurrency(item.unitPrice * item.quantity)}
                             </div>
                           </div>
-
-                          {/* Botão Excluir Desktop */}
-                          <button
-                            onClick={() => deleteItem(item.id)}
-                            className="hidden md:block p-1 text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
-                          >
-                            <X size={18} />
-                          </button>
                         </div>
-                      </div>
-                    ))
-                  )}
-                </div>
-              </div>
-            </div>
 
-            <div className="xl:col-span-1 flex flex-col gap-6">
-              <div className="bg-white dark:bg-surface-dark rounded-[2rem] border border-gray-200 dark:border-border-green p-6 flex flex-col gap-4 shadow-xl">
-                <h3 className="text-slate-900 dark:text-white font-bold text-lg">Sugestões Smart</h3>
-                <div className="flex flex-col gap-3">
-                  <div className="flex items-center justify-between p-3 rounded-2xl bg-slate-50 dark:bg-black/20 hover:bg-slate-100 dark:hover:bg-black/40 border border-transparent hover:border-primary/20 transition-all group">
-                    <div className="flex items-center gap-3">
-                      <div className="size-10 rounded-xl bg-slate-200 dark:bg-white/5 flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('https://picsum.photos/100/100?random=20')" }}></div>
-                      <div className="flex flex-col">
-                        <p className="text-slate-900 dark:text-white text-sm font-medium">Iogurte Grego</p>
-                        <p className="text-slate-500 dark:text-text-secondary text-xs">~R$ 5,90</p>
+                        {/* Botão Excluir Desktop */}
+                        <button
+                          onClick={() => deleteItem(item.id)}
+                          className="hidden md:block p-1 text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                        >
+                          <X size={18} />
+                        </button>
                       </div>
                     </div>
-                    <button
-                      onClick={() => { setNewItemName('Iogurte Grego'); handleAddItem(); }}
-                      className="size-8 rounded-full bg-primary/20 text-primary flex items-center justify-center hover:bg-primary hover:text-background-dark transition-all"
-                    >
-                      <Plus size={16} />
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="bg-gradient-to-br from-primary/10 to-transparent dark:from-primary/20 dark:to-surface-dark rounded-[2rem] border border-primary/20 p-6 flex flex-col gap-3 relative overflow-hidden shadow-lg">
-                <div className="flex items-center gap-2 mb-1">
-                  <Lightbulb size={18} className="text-primary" />
-                  <p className="text-primary font-bold text-xs uppercase tracking-wider">Dica da IA</p>
-                </div>
-                <p className="text-slate-700 dark:text-white font-medium text-sm leading-relaxed italic">
-                  {insight}
-                </p>
-                <div className="mt-2 flex justify-end">
-                  <Sparkles size={14} className="text-primary/50" />
-                </div>
+                  ))
+                )}
               </div>
             </div>
           </div>

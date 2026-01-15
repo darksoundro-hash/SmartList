@@ -2,9 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '../components/Layout';
-import { Sparkles, Edit, Check, ChevronRight, Calendar } from 'lucide-react';
-import { GroceryList } from '../types';
-import { getSmartSuggestions } from '../SmartList/services/gemini';
+import { Edit, Check, ChevronRight, Calendar } from 'lucide-react';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
 const CreateList: React.FC = () => {
@@ -12,7 +10,6 @@ const CreateList: React.FC = () => {
   const [listName, setListName] = useState('');
   const [budget, setBudget] = useState('');
   const [shoppingDate, setShoppingDate] = useState(new Date().toISOString().split('T')[0]);
-  const [useAI, setUseAI] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,28 +41,6 @@ const CreateList: React.FC = () => {
 
       const newListId = listData.id;
 
-      // 2. Gerar e inserir itens se AI estiver ativada
-      if (useAI) {
-        const suggestions = await getSmartSuggestions(listName);
-
-        const aiItems = suggestions.map((item: any) => ({
-          list_id: newListId,
-          name: item.name.toUpperCase(),
-          category: item.category,
-          quantity: 1,
-          unit_price: item.estimatedPrice || 0,
-          bought: false
-        }));
-
-        if (aiItems.length > 0) {
-          const { error: itemsError } = await supabase
-            .from('grocery_items')
-            .insert(aiItems);
-
-          if (itemsError) console.error('Erro ao inserir itens:', itemsError);
-        }
-      }
-
       navigate(`/list-details/${newListId}`);
     } catch (error) {
       console.error("Erro ao criar lista:", error);
@@ -90,7 +65,7 @@ const CreateList: React.FC = () => {
         <div className="mb-6 md:mb-10">
           <h1 className="text-3xl md:text-4xl lg:text-5xl font-black text-gray-900 dark:text-white tracking-tight mb-2 md:mb-3">Vamos às compras.</h1>
           <p className="text-base md:text-lg text-text-secondary font-normal max-w-2xl">
-            Dê um nome à sua lista e defina um limite de gastos para manter o controle. A IA ajudará você a organizar tudo sem esforço.
+            Dê um nome à sua lista e defina um limite de gastos para manter o controle.
           </p>
         </div>
 
@@ -146,32 +121,11 @@ const CreateList: React.FC = () => {
               </div>
             </div>
 
-            <div className="flex items-center justify-between py-3 md:py-4 px-4 md:px-5 rounded-xl border border-border-light dark:border-border-dark bg-gray-50 dark:bg-[#102216]/50 gap-4">
-              <div className="flex items-center gap-3 md:gap-4 flex-1 min-w-0">
-                <div className="h-10 w-10 md:h-12 md:w-12 rounded-full bg-primary/10 flex items-center justify-center text-primary flex-shrink-0">
-                  <Sparkles className="w-4 h-4 md:w-5 md:h-5" />
-                </div>
-                <div className="flex flex-col min-w-0">
-                  <span className="text-gray-900 dark:text-white font-semibold text-sm md:text-base">Sugestões Inteligentes</span>
-                  <span className="text-xs text-text-secondary truncate">Usar IA para sugerir itens com base no histórico</span>
-                </div>
-              </div>
-              <label className="relative inline-flex items-center cursor-pointer flex-shrink-0">
-                <input
-                  type="checkbox"
-                  checked={useAI}
-                  onChange={(e) => setUseAI(e.target.checked)}
-                  className="sr-only peer"
-                />
-                <div className="w-14 h-8 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-primary/50 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[4px] after:left-[4px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-6 after:w-6 after:transition-all dark:border-gray-600 peer-checked:bg-primary"></div>
-              </label>
-            </div>
-
             <div className="flex flex-col-reverse md:flex-row items-stretch md:items-center justify-end gap-3 md:gap-4 mt-4 pt-6 border-t border-gray-100 dark:border-white/5">
-              <button 
-                onClick={() => navigate(-1)} 
-                className="w-full md:w-auto px-6 md:px-8 h-12 md:h-14 rounded-full text-gray-500 font-semibold transition-colors min-h-[48px] text-base md:text-lg" 
-                type="button" 
+              <button
+                onClick={() => navigate(-1)}
+                className="w-full md:w-auto px-6 md:px-8 h-12 md:h-14 rounded-full text-gray-500 font-semibold transition-colors min-h-[48px] text-base md:text-lg"
+                type="button"
                 disabled={isLoading}
               >
                 Cancelar
@@ -184,7 +138,7 @@ const CreateList: React.FC = () => {
                 {isLoading ? (
                   <>
                     <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-background-dark"></div>
-                    <span>Gerando Lista...</span>
+                    <span>Criando Lista...</span>
                   </>
                 ) : (
                   <>

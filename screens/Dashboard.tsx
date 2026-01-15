@@ -18,14 +18,9 @@ import {
 import { GroceryList, Notification } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
-const GROCERY_IMAGES = [
-  'https://images.unsplash.com/photo-1542838132-92c53300491e?auto=format&fit=crop&q=80&w=800', // Market fruit
-  'https://images.unsplash.com/photo-1490818387583-1baba5e638af?auto=format&fit=crop&q=80&w=800', // Produce
-  'https://images.unsplash.com/photo-1464226184884-fa280b87c399?auto=format&fit=crop&q=80&w=800', // Fresh produce
-  'https://images.unsplash.com/photo-1601004869352-7440d0f83ce6?auto=format&fit=crop&q=80&w=800', // Fruits
-  'https://images.unsplash.com/photo-1597393312915-1fb688abec81?auto=format&fit=crop&q=80&w=800', // Veggies 2
-  'https://images.unsplash.com/photo-1543168256-418811576931?auto=format&fit=crop&q=80&w=800', // Grocery bag
-];
+// Card background image is now handled via static asset
+const CARD_BG_IMAGE = '/assets/card_bg.png';
+
 
 const DashboardContent: React.FC = () => {
   const navigate = useNavigate();
@@ -344,9 +339,8 @@ const DashboardContent: React.FC = () => {
                   <div
                     className="h-40 bg-cover bg-center relative"
                     style={{
-                      backgroundImage: `url('${GROCERY_IMAGES[
-                        (list.id?.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) || 0) % GROCERY_IMAGES.length
-                      ]}')`
+                      backgroundImage: `url('${CARD_BG_IMAGE}')`
+
                     }}
                   >
                     <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent"></div>
@@ -392,9 +386,8 @@ const DashboardContent: React.FC = () => {
                   <div
                     className="size-16 rounded-xl bg-cover bg-center shrink-0"
                     style={{
-                      backgroundImage: `url('${GROCERY_IMAGES[
-                        (list.id?.split('').reduce((acc: number, char: string) => acc + char.charCodeAt(0), 0) || 0) % GROCERY_IMAGES.length
-                      ]}')`
+                      backgroundImage: `url('${CARD_BG_IMAGE}')`
+
                     }}
                   />
                   <div className="flex-1 min-w-0">

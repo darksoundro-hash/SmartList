@@ -81,7 +81,7 @@ const Login: React.FC = () => {
           <div className="size-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary shadow-lg shadow-primary/10">
             <ListChecks size={28} />
           </div>
-          <h2 className="text-2xl font-black tracking-tight">SmartList AI</h2>
+          <h2 className="text-2xl font-black tracking-tight">SmartList</h2>
         </div>
 
         <div className="relative z-10 flex flex-col gap-10 max-w-xl">
@@ -93,7 +93,7 @@ const Login: React.FC = () => {
               className="text-5xl xl:text-7xl font-black leading-[1.1] tracking-tighter text-white"
             >
               Compras de Mercado <br />
-              <span className="text-primary italic">Otimizadas por IA.</span>
+              <span className="text-primary italic">Organizadas e Simples.</span>
             </motion.h1>
             <motion.p
               initial={{ opacity: 0 }}
@@ -101,14 +101,14 @@ const Login: React.FC = () => {
               transition={{ delay: 0.4, duration: 0.6 }}
               className="text-text-muted text-lg font-medium leading-relaxed max-w-md"
             >
-              Junte-se a milhares de compradores inteligentes que gerenciam seu orçamento e otimizam listas com insights de inteligência artificial.
+              Junte-se a milhares de compradores inteligentes que gerenciam seu orçamento e otimizam listas com total praticidade e controle.
             </motion.p>
           </div>
 
           <div className="grid grid-cols-1 gap-5">
             {[
               { icon: DollarSign, title: "Controle Financeiro", desc: "Acompanhe gastos instantaneamente e evite surpresas no caixa." },
-              { icon: Sparkles, title: "Listas Inteligentes", desc: "IA organiza seus itens por categoria e sugere produtos faltantes." }
+              { icon: ListChecks, title: "Organização Automática", desc: "Seus itens agrupados por categoria para facilitar sua jornada no mercado." }
             ].map((item, index) => (
               <motion.div
                 key={index}
@@ -136,7 +136,7 @@ const Login: React.FC = () => {
           transition={{ delay: 1, duration: 0.5 }}
           className="absolute bottom-12 left-12 xl:left-20 z-10"
         >
-          <p className="text-xs font-bold text-text-muted uppercase tracking-[0.3em] italic">© 2024 Smart Grocery Inc.</p>
+          <p className="text-xs font-bold text-text-muted uppercase tracking-[0.3em] italic">© 2026 Smart Grocery Inc.</p>
         </motion.div>
       </motion.div>
 
@@ -153,7 +153,7 @@ const Login: React.FC = () => {
             <div className="size-10 bg-primary/20 rounded-xl flex items-center justify-center text-primary shadow-lg shadow-primary/10">
               <ListChecks size={28} />
             </div>
-            <h2 className="text-xl font-black tracking-tight">SmartList AI</h2>
+            <h2 className="text-xl font-black tracking-tight">SmartList</h2>
           </div>
 
           <motion.div

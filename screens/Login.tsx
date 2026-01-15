@@ -65,7 +65,7 @@ const Login: React.FC = () => {
         initial={{ opacity: 0, x: -50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.8, ease: "easeOut" }}
-        className="hidden lg:flex w-1/2 relative flex-col justify-between p-12 xl:p-20 overflow-hidden border-r border-white/5"
+        className="hidden lg:flex w-1/2 relative flex-col justify-center gap-12 p-12 xl:p-20 overflow-hidden border-r border-white/5"
       >
         <motion.div
           animate={{
@@ -134,7 +134,7 @@ const Login: React.FC = () => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 0.4 }}
           transition={{ delay: 1, duration: 0.5 }}
-          className="relative z-10"
+          className="absolute bottom-12 left-12 xl:left-20 z-10"
         >
           <p className="text-xs font-bold text-text-muted uppercase tracking-[0.3em] italic">© 2024 Smart Grocery Inc.</p>
         </motion.div>
@@ -158,7 +158,7 @@ const Login: React.FC = () => {
 
           <motion.div
             layout
-            className="self-center lg:self-end bg-white/5 border border-white/10 p-1.5 rounded-full flex w-fit mb-2 relative"
+            className="self-center bg-white/5 border border-white/10 p-1.5 rounded-full flex w-fit mb-2 relative"
           >
             <motion.div
               layoutId="active-pill"

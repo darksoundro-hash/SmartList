@@ -14,12 +14,13 @@ import {
   CheckCircle2,
   Circle,
   X,
-  Pencil,
   ArrowLeft,
   ChevronDown,
   MoreVertical,
   Play,
-  Check
+  Check,
+  AlertTriangle,
+  Pencil
 } from 'lucide-react';
 import { GroceryItem, GroceryList } from '../types';
 

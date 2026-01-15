@@ -186,7 +186,7 @@ const Login: React.FC = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
               transition={{ duration: 0.3 }}
-              className="flex flex-col gap-2 md:gap-3 text-center lg:text-left"
+              className="flex flex-col gap-2 md:gap-3 text-center"
             >
               <h1 className="text-3xl md:text-4xl font-black text-white tracking-tight">
                 {isLogin ? 'Bem-vindo de volta' : 'Crie sua conta'}

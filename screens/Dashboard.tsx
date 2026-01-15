@@ -210,7 +210,7 @@ const DashboardContent: React.FC = () => {
             >
               <Bell size={20} className="group-hover:text-primary" />
               {unreadCount > 0 && (
-                <span className="absolute top-3 right-3.5 size-2 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark animate-pulse"></span>
+                <span className="absolute top-2 right-2.5 size-2.5 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark animate-pulse"></span>
               )}
             </button>
 

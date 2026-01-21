@@ -207,12 +207,14 @@ const DashboardContent: React.FC = () => {
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
-              className="notification-trigger size-11 rounded-full bg-slate-100 dark:bg-surface-dark border border-transparent hover:border-primary/50 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all relative group"
+              className="notification-trigger size-11 rounded-full bg-slate-100 dark:bg-surface-dark border border-transparent hover:border-primary/50 text-slate-600 dark:text-slate-300 flex items-center justify-center transition-all group"
             >
-              <Bell size={20} className="group-hover:text-primary" />
-              {unreadCount > 0 && (
-                <span className="absolute top-2 right-2.5 size-2.5 bg-primary rounded-full ring-2 ring-white dark:ring-surface-dark animate-pulse"></span>
-              )}
+              <div className="relative">
+                <Bell size={20} className="group-hover:text-primary transition-colors mt-0.5" />
+                {unreadCount > 0 && (
+                  <span className="absolute -top-0.5 right-1.5 size-2 bg-primary rounded-full ring-2 ring-slate-100 dark:ring-surface-dark animate-pulse"></span>
+                )}
+              </div>
             </button>
 
             {/* Notification Dropdown */}

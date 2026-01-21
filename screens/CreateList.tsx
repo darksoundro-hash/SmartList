@@ -2,7 +2,7 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { Layout } from '../components/Layout';
-import { Edit, Check, ChevronRight, Calendar } from 'lucide-react';
+import { Edit, Check, ChevronRight, Calendar, ArrowLeft } from 'lucide-react';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
 const CreateList: React.FC = () => {
@@ -54,6 +54,14 @@ const CreateList: React.FC = () => {
     <Layout activePage="lists">
       <div className="absolute top-0 left-0 w-full h-64 bg-gradient-to-b from-green-500/5 to-transparent pointer-events-none"></div>
       <div className="flex-1 px-4 md:px-6 lg:px-12 py-6 md:py-8 max-w-5xl mx-auto w-full flex flex-col overflow-y-auto">
+        <div className="flex items-center gap-4 mb-6 md:mb-8">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="size-10 rounded-full bg-slate-100 dark:bg-white/5 border border-transparent hover:border-primary/50 flex items-center justify-center text-slate-700 dark:text-white hover:text-primary transition-all group"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          </button>
+        </div>
         <div className="flex flex-wrap items-center gap-2 mb-6 md:mb-8 text-xs md:text-sm">
           <Link to="/dashboard" className="text-text-secondary hover:text-primary transition-colors">Painel</Link>
           <ChevronRight size={12} className="md:w-3.5 md:h-3.5 text-gray-600" />

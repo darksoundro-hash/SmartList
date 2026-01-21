@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import {
    TrendingDown,
@@ -10,12 +11,14 @@ import {
    ArrowDownRight,
    Wallet,
    Calendar,
-   Filter
+   Filter,
+   ArrowLeft
 } from 'lucide-react';
 import { HistoryEntry } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
 const Finances: React.FC = () => {
+   const navigate = useNavigate();
    const [history, setHistory] = useState<HistoryEntry[]>([]);
 
    useEffect(() => {
@@ -67,17 +70,25 @@ const Finances: React.FC = () => {
    return (
       <Layout activePage="finances">
          <header className="h-20 flex items-center justify-between px-4 md:px-6 lg:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
-            <div className="flex flex-col">
-               <h1 className="text-xl font-black text-white uppercase tracking-tight">Painel Financeiro</h1>
-               <p className="text-[10px] text-text-secondary font-black uppercase tracking-widest opacity-60">Análise de investimentos em mantimentos</p>
-            </div>
-            <div className="flex items-center gap-3">
-               <button className="flex items-center gap-2 px-4 h-10 bg-surface-dark border border-border-green rounded-full text-xs font-bold text-text-secondary hover:text-white transition-all">
-                  <Calendar size={16} /> 2024
+            <div className="flex items-center gap-4">
+               <button
+                  onClick={() => navigate('/dashboard')}
+                  className="size-10 rounded-full bg-slate-100 dark:bg-white/5 border border-transparent hover:border-primary/50 flex items-center justify-center text-slate-700 dark:text-white hover:text-primary transition-all group"
+               >
+                  <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
                </button>
-               <button className="size-10 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center text-primary">
-                  <Filter size={18} />
-               </button>
+               <div className="flex flex-col">
+                  <h1 className="text-xl font-black text-white uppercase tracking-tight">Painel Financeiro</h1>
+                  <p className="text-[10px] text-text-secondary font-black uppercase tracking-widest opacity-60">Análise de investimentos em mantimentos</p>
+               </div>
+               <div className="flex items-center gap-3">
+                  <button className="flex items-center gap-2 px-4 h-10 bg-surface-dark border border-border-green rounded-full text-xs font-bold text-text-secondary hover:text-white transition-all">
+                     <Calendar size={16} /> 2024
+                  </button>
+                  <button className="size-10 bg-primary/10 border border-primary/20 rounded-full flex items-center justify-center text-primary">
+                     <Filter size={18} />
+                  </button>
+               </div>
             </div>
          </header>
 

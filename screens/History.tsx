@@ -1,5 +1,6 @@
 
 import React, { useState, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Layout } from '../components/Layout';
 import {
   Download,
@@ -13,12 +14,14 @@ import {
   Search,
   Star,
   Trash2,
-  ChevronRight as ChevronRightIcon
+  ChevronRight as ChevronRightIcon,
+  ArrowLeft
 } from 'lucide-react';
 import { HistoryEntry } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
 const History: React.FC = () => {
+  const navigate = useNavigate();
   const [historyData, setHistoryData] = useState<HistoryEntry[]>([]);
   const [currentMonth, setCurrentMonth] = useState(new Date());
   const [searchQuery, setSearchQuery] = useState('');
@@ -160,9 +163,17 @@ const History: React.FC = () => {
   return (
     <Layout activePage="history">
       <header className="h-20 flex flex-none items-center justify-between px-4 md:px-6 lg:px-10 border-b border-white/5 bg-background-dark/80 backdrop-blur-md sticky top-0 z-20">
-        <div className="flex flex-col">
-          <h1 className="text-xl md:text-2xl font-black text-white leading-none">Histórico de Compras</h1>
-          <p className="text-text-secondary text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Visualize e analise seus gastos mensais.</p>
+        <div className="flex items-center gap-4">
+          <button
+            onClick={() => navigate('/dashboard')}
+            className="size-10 rounded-full bg-slate-100 dark:bg-white/5 border border-transparent hover:border-primary/50 flex items-center justify-center text-slate-700 dark:text-white hover:text-primary transition-all group"
+          >
+            <ArrowLeft size={20} className="group-hover:-translate-x-1 transition-transform" />
+          </button>
+          <div className="flex flex-col">
+            <h1 className="text-xl md:text-2xl font-black text-white leading-none">Histórico de Compras</h1>
+            <p className="text-text-secondary text-[10px] font-black uppercase tracking-widest mt-1 opacity-60">Visualize e analise seus gastos mensais.</p>
+          </div>
         </div>
         <button onClick={exportData} className="flex items-center gap-2 rounded-full h-10 px-6 bg-surface-dark border border-border-green text-text-secondary hover:text-white hover:border-primary transition-all text-sm font-bold active:scale-95 shadow-lg">
           <Download size={18} /> <span className="hidden sm:inline">Exportar</span>

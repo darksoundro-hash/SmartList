@@ -9,7 +9,6 @@ import Login from './screens/Login';
 import Dashboard from './screens/Dashboard';
 import CreateList from './screens/CreateList';
 import ListDetails from './screens/ListDetails';
-import ShoppingMode from './screens/ShoppingMode';
 import History from './screens/History';
 import Profile from './screens/Profile';
 import Finances from './screens/Finances';
@@ -24,7 +23,6 @@ const App: React.FC = () => {
           <Route path="/lists" element={<Dashboard />} />
           <Route path="/create-list" element={<CreateList />} />
           <Route path="/list-details/:id" element={<ListDetails />} />
-          <Route path="/shopping-mode/:id" element={<ShoppingMode />} />
           <Route path="/history" element={<History />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/finances" element={<Finances />} />

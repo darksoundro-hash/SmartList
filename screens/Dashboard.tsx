@@ -145,6 +145,7 @@ const DashboardContent: React.FC = () => {
       if (profile) {
         setUserName(profile.name || '');
       }
+    } catch (error) {
       console.error('Error fetching dashboard data:', error);
       addToast('Erro ao carregar seus dados.', 'error');
     } finally {

@@ -48,6 +48,9 @@ const ListDetails: React.FC = () => {
   const [isEditingName, setIsEditingName] = useState(false);
   const [tempName, setTempName] = useState('');
 
+  // Shopping Mode State
+  const [isShoppingMode, setIsShoppingMode] = useState(false);
+
   const isDeleting = useRef(false);
 
   useEffect(() => {
@@ -303,6 +306,35 @@ const ListDetails: React.FC = () => {
     }
   };
 
+  const finalizePurchase = async () => {
+    if (!id || !listData) return;
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) return;
+
+    const boughtItems = items.filter(i => i.bought);
+    const totalSpent = boughtItems.reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0);
+
+    // Insert into history
+    const { error } = await supabase.from('shopping_history').insert({
+      user_id: user.id,
+      store: listData.store || 'Mercado',
+      date: new Date().toISOString(),
+      item_count: boughtItems.length,
+      total_value: totalSpent
+    });
+
+    if (error) {
+      console.error('Error saving history:', error);
+      alert('Erro ao salvar histórico');
+      return;
+    }
+
+    // Exit shopping mode and show success
+    setIsShoppingMode(false);
+    alert(`Compra finalizada! ${boughtItems.length} itens - ${formatCurrency(totalSpent)}`);
+  };
+
   const formatCurrency = (value: number) => {
     return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   };
@@ -425,12 +457,16 @@ const ListDetails: React.FC = () => {
 
         <div className="flex items-center gap-2 md:gap-3">
           <button
-            onClick={() => navigate(`/shopping-mode/${id}`)}
-            className="hidden md:flex h-10 px-4 items-center gap-2 rounded-xl bg-primary text-background-dark font-bold transition-all shadow-lg hover:bg-green-400 active:scale-95"
-            title="Iniciar Modo Compras"
+            onClick={() => setIsShoppingMode(!isShoppingMode)}
+            className={`hidden md:flex h-10 px-4 items-center gap-2 rounded-xl font-bold transition-all shadow-lg active:scale-95 ${isShoppingMode
+              ? 'bg-red-500 hover:bg-red-600 text-white'
+              : 'bg-primary hover:bg-green-400 text-background-dark'
+              }`}
+            title={isShoppingMode ? "Sair do Modo Compras" : "Iniciar Modo Compras"}
           >
-            <Play size={18} fill="currentColor" />
-            <span>Modo Compras</span>
+            <ShoppingCart size={18} />
+            <span className="hidden sm:inline">{isShoppingMode ? 'Sair do Modo' : 'Modo Compras'}</span>
+            <span className="sm:hidden">{isShoppingMode ? 'Sair' : 'Compras'}</span>
           </button>
           <button
             onClick={handleShare}
@@ -544,21 +580,41 @@ const ListDetails: React.FC = () => {
           </div>
 
           <div className="flex flex-col gap-6 w-full">
-            <form onSubmit={handleAddItem} className="relative z-30">
-              <div className="bg-white dark:bg-surface-dark p-2 rounded-full border border-gray-200 dark:border-border-green flex items-center shadow-lg focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all relative z-20">
-                <div className="pl-4 pr-2 text-slate-400"><PlusCircle size={20} /></div>
+            <form onSubmit={handleAddItem} className="relative z-30 w-full px-1">
+              <div className="bg-white dark:bg-surface-dark p-1.5 md:p-2 rounded-full border border-gray-200 dark:border-border-green flex items-center shadow-lg focus-within:border-primary/50 focus-within:ring-2 focus-within:ring-primary/10 transition-all relative z-20 w-full">
+                <div className="pl-3 md:pl-4 pr-1 md:pr-2 text-slate-400 shrink-0"><PlusCircle size={20} /></div>
                 <input
-                  className="flex-1 bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 text-base font-medium h-10 outline-none"
-                  placeholder="Adicionar item (ex: 2kg Maçãs)..."
+                  className="flex-1 bg-transparent border-none text-slate-900 dark:text-white placeholder-slate-400 focus:ring-0 text-sm md:text-base font-medium h-9 md:h-10 outline-none min-w-0"
+                  placeholder="Adicionar item..."
                   type="text"
                   value={newItemName}
                   onChange={(e) => setNewItemName(e.target.value)}
                 />
-                <button type="submit" className="ml-2 h-10 px-6 rounded-full bg-primary text-background-dark font-bold text-sm hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-primary/20">
-                  Adicionar
+                <button type="submit" className="ml-1 md:ml-2 h-9 md:h-10 px-3 md:px-6 rounded-full bg-primary text-background-dark font-bold text-xs md:text-sm hover:bg-green-400 transition-all active:scale-95 shadow-lg shadow-primary/20 shrink-0">
+                  <span className="hidden xs:inline">Adicionar</span>
+                  <Plus size={20} className="xs:hidden" />
                 </button>
               </div>
             </form>
+
+            {/* Shopping Mode Banner */}
+            {isShoppingMode && (
+              <div className="bg-primary/10 border-2 border-primary/30 rounded-2xl p-4 flex items-center gap-3 animate-in slide-in-from-top duration-300">
+                <div className="size-10 rounded-full bg-primary/20 flex items-center justify-center shrink-0">
+                  <ShoppingCart size={20} className="text-primary" />
+                </div>
+                <div className="flex-1">
+                  <h3 className="font-bold text-slate-900 dark:text-white text-sm">🛒 Modo Compras Ativo</h3>
+                  <p className="text-xs text-slate-600 dark:text-slate-400">Marque os itens conforme você compra</p>
+                </div>
+                <button
+                  onClick={() => setIsShoppingMode(false)}
+                  className="size-8 rounded-full bg-red-500/10 hover:bg-red-500/20 text-red-500 flex items-center justify-center transition-colors"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+            )}
 
             <div className="flex flex-col bg-white dark:bg-surface-dark rounded-[2rem] border border-gray-200 dark:border-border-green overflow-hidden min-h-[500px] shadow-xl">
               <div className="p-4 border-b border-gray-200 dark:border-border-green flex items-center justify-between bg-slate-50 dark:bg-surface-darker/30">
@@ -672,6 +728,27 @@ const ListDetails: React.FC = () => {
                 )}
               </div>
             </div>
+
+            {/* Finalize Purchase Button - Shopping Mode */}
+            {isShoppingMode && items.filter(i => i.bought).length > 0 && (
+              <div className="mt-6 p-6 bg-primary/5 border-2 border-primary/20 rounded-2xl">
+                <div className="flex items-center justify-between mb-4">
+                  <div>
+                    <h4 className="font-bold text-slate-900 dark:text-white">Pronto para finalizar?</h4>
+                    <p className="text-sm text-slate-600 dark:text-slate-400">
+                      {items.filter(i => i.bought).length} itens marcados • {formatCurrency(items.filter(i => i.bought).reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0))}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={finalizePurchase}
+                  className="w-full h-14 bg-primary hover:bg-green-400 text-background-dark font-bold rounded-full transition-all active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+                >
+                  <Check size={20} />
+                  Finalizar Compra
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

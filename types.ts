@@ -29,7 +29,10 @@ export interface HistoryEntry {
   itemCount: number;
   totalValue: number;
   isFavorite?: boolean;
+  paymentMethod?: PaymentMethod;
 }
+
+export type PaymentMethod = 'credit_card' | 'debit_card' | 'money' | 'pix' | 'voucher';
 
 export interface UserProfile {
   name: string;

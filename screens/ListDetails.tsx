@@ -20,9 +20,13 @@ import {
   Play,
   Check,
   AlertTriangle,
-  Pencil
+  AlertTriangle,
+  Pencil,
+  CreditCard,
+  DollarSign,
+  Smartphone
 } from 'lucide-react';
-import { GroceryItem, GroceryList } from '../types';
+import { GroceryItem, GroceryList, PaymentMethod } from '../types';
 
 import { supabase } from '../SmartList/services/src/lib/supabase';
 
@@ -50,6 +54,8 @@ const ListDetails: React.FC = () => {
 
   // Shopping Mode State
   const [isShoppingMode, setIsShoppingMode] = useState(false);
+  const [showPaymentModal, setShowPaymentModal] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit_card');
 
   const isDeleting = useRef(false);
 
@@ -306,7 +312,12 @@ const ListDetails: React.FC = () => {
     }
   };
 
-  const finalizePurchase = async () => {
+  const handleFinalizeClick = () => {
+    if (!id || !listData) return;
+    setShowPaymentModal(true);
+  };
+
+  const confirmPurchase = async () => {
     if (!id || !listData) return;
 
     const { data: { user } } = await supabase.auth.getUser();
@@ -321,7 +332,9 @@ const ListDetails: React.FC = () => {
       store: listData.store || 'Mercado',
       date: new Date().toISOString(),
       item_count: boughtItems.length,
-      total_value: totalSpent
+      item_count: boughtItems.length,
+      total_value: totalSpent,
+      payment_method: paymentMethod
     });
 
     if (error) {
@@ -332,7 +345,19 @@ const ListDetails: React.FC = () => {
 
     // Exit shopping mode and show success
     setIsShoppingMode(false);
-    alert(`Compra finalizada! ${boughtItems.length} itens - ${formatCurrency(totalSpent)}`);
+    setShowPaymentModal(false);
+    alert(`Compra finalizada! Método: ${getPaymentMethodLabel(paymentMethod)}`);
+  };
+
+  const getPaymentMethodLabel = (method: PaymentMethod) => {
+    switch (method) {
+      case 'credit_card': return 'Cartão de Crédito';
+      case 'debit_card': return 'Cartão de Débito';
+      case 'money': return 'Dinheiro';
+      case 'pix': return 'Pix';
+      case 'voucher': return 'Vale Alimentação';
+      default: return 'Outro';
+    }
   };
 
   const formatCurrency = (value: number) => {
@@ -406,6 +431,54 @@ const ListDetails: React.FC = () => {
                 className="w-full h-14 bg-white/5 hover:bg-white/10 text-white font-bold rounded-full transition-all active:scale-95"
               >
                 Cancelar
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Modal de Pagamento */}
+      {showPaymentModal && (
+        <div className="fixed inset-0 z-[100] flex items-end md:items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
+          <div className="bg-surface-dark border border-border-green rounded-[2rem] p-6 max-w-md w-full shadow-2xl flex flex-col gap-6 transform animate-in slide-in-from-bottom-10 md:slide-in-from-bottom-0 md:zoom-in-95 duration-200">
+            <div className="flex justify-between items-center pb-4 border-b border-white/5">
+              <div>
+                <h2 className="text-2xl font-black text-white">Pagamento</h2>
+                <p className="text-text-secondary text-sm">Como você realizou esta compra?</p>
+              </div>
+              <button onClick={() => setShowPaymentModal(false)} className="p-2 bg-white/5 rounded-full text-slate-400 hover:text-white"><X size={20} /></button>
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { id: 'voucher', label: 'Vale Alim.', icon: <Wallet size={24} />, color: 'text-orange-400' },
+                { id: 'credit_card', label: 'Crédito', icon: <CreditCard size={24} />, color: 'text-blue-400' },
+                { id: 'debit_card', label: 'Débito', icon: <CreditCard size={24} />, color: 'text-purple-400' },
+                { id: 'pix', label: 'Pix', icon: <Smartphone size={24} />, color: 'text-green-400' },
+                { id: 'money', label: 'Dinheiro', icon: <DollarSign size={24} />, color: 'text-green-600' },
+              ].map((method) => (
+                <button
+                  key={method.id}
+                  onClick={() => setPaymentMethod(method.id as PaymentMethod)}
+                  className={`flex flex-col items-center justify-center gap-3 p-4 rounded-2xl border-2 transition-all ${paymentMethod === method.id ? 'bg-primary/10 border-primary shadow-[0_0_15px_rgba(19,236,91,0.2)]' : 'bg-background-dark border-white/5 hover:bg-white/5 hover:border-white/10'}`}
+                >
+                  <div className={`${paymentMethod === method.id ? 'text-primary' : method.color}`}>{method.icon}</div>
+                  <span className={`font-bold text-sm ${paymentMethod === method.id ? 'text-white' : 'text-slate-400'}`}>{method.label}</span>
+                </button>
+              ))}
+            </div>
+
+            <div className="pt-2">
+              <div className="flex justify-between items-center mb-4 px-2">
+                <span className="text-slate-400 font-medium">Total Pago</span>
+                <span className="text-2xl font-black text-white">{formatCurrency(items.filter(i => i.bought).reduce((acc, item) => acc + (item.unitPrice * item.quantity), 0))}</span>
+              </div>
+              <button
+                onClick={confirmPurchase}
+                className="w-full h-14 bg-primary hover:bg-green-400 text-background-dark font-bold rounded-full transition-all active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+              >
+                <Check size={20} />
+                Confirmar Pagamento
               </button>
             </div>
           </div>
@@ -741,7 +814,7 @@ const ListDetails: React.FC = () => {
                   </div>
                 </div>
                 <button
-                  onClick={finalizePurchase}
+                  onClick={handleFinalizeClick}
                   className="w-full h-14 bg-primary hover:bg-green-400 text-background-dark font-bold rounded-full transition-all active:scale-95 shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
                 >
                   <Check size={20} />

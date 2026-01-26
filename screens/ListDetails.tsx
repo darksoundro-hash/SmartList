@@ -20,7 +20,7 @@ import {
   Play,
   Check,
   AlertTriangle,
-  AlertTriangle,
+
   Pencil,
   CreditCard,
   DollarSign,

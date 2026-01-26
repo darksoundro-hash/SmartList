@@ -29,6 +29,8 @@ import {
 import { GroceryItem, GroceryList, PaymentMethod } from '../types';
 
 import { supabase } from '../SmartList/services/src/lib/supabase';
+import { useSubscription } from '../components/SubscriptionContext';
+import { PaywallModal } from '../components/PaywallModal';
 
 const ListDetails: React.FC = () => {
   const navigate = useNavigate();
@@ -56,6 +58,11 @@ const ListDetails: React.FC = () => {
   const [isShoppingMode, setIsShoppingMode] = useState(false);
   const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethod>('credit_card');
+
+  // Subscription Limits
+  const { checkLimits } = useSubscription();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState('');
 
   const isDeleting = useRef(false);
 
@@ -136,6 +143,14 @@ const ListDetails: React.FC = () => {
 
   const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    // Check Limits - Max Items
+    if (!checkLimits.canAddItem(items.length)) {
+      setPaywallMessage(`Você atingiu o limite de ${5} itens por lista do plano Grátis.`);
+      setShowPaywall(true);
+      return;
+    }
+
     if (!newItemName.trim() || !id) return;
 
     const name = newItemName.toUpperCase();
@@ -229,6 +244,8 @@ const ListDetails: React.FC = () => {
   };
 
   const deleteItem = async (itemId: string) => {
+    if (!window.confirm('Deseja realmente excluir este item da lista?')) return;
+
     const oldItems = [...items];
     setItems(prev => prev.filter(item => item.id !== itemId));
 
@@ -269,6 +286,14 @@ const ListDetails: React.FC = () => {
   };
 
   const confirmDeleteList = async () => {
+    // Check Limits - Delete Block
+    if (!checkLimits.canDeleteList()) {
+      setShowDeleteModal(false);
+      setPaywallMessage('Usuários Grátis não podem excluir listas. Essa é uma funcionalidade Premium.');
+      setShowPaywall(true);
+      return;
+    }
+
     if (!id) return;
     isDeleting.current = true;
 
@@ -331,7 +356,6 @@ const ListDetails: React.FC = () => {
       user_id: user.id,
       store: listData.store || 'Mercado',
       date: new Date().toISOString(),
-      item_count: boughtItems.length,
       item_count: boughtItems.length,
       total_value: totalSpent,
       payment_method: paymentMethod
@@ -408,6 +432,12 @@ const ListDetails: React.FC = () => {
 
   return (
     <Layout activePage="lists">
+      <PaywallModal
+        isOpen={showPaywall}
+        onClose={() => setShowPaywall(false)}
+        message={paywallMessage}
+      />
+
       {/* Modal de Exclusão Customizado */}
       {showDeleteModal && (
         <div className="fixed inset-0 z-[100] flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200">
@@ -744,9 +774,9 @@ const ListDetails: React.FC = () => {
                         {/* Botão de Excluir Mobile (Visível no topo direito) */}
                         <button
                           onClick={() => deleteItem(item.id)}
-                          className="md:hidden p-2 -mr-2 text-slate-400 hover:text-red-400 transition-colors"
+                          className="md:hidden p-2 -mr-2 text-slate-400 hover:text-red-500 transition-colors"
                         >
-                          <X size={20} />
+                          <Trash2 size={20} />
                         </button>
                       </div>
 
@@ -791,9 +821,9 @@ const ListDetails: React.FC = () => {
                         {/* Botão Excluir Desktop */}
                         <button
                           onClick={() => deleteItem(item.id)}
-                          className="hidden md:block p-1 text-slate-400 hover:text-red-400 opacity-0 group-hover:opacity-100 transition-all"
+                          className="hidden md:block p-1 text-slate-400 hover:text-red-500 opacity-0 group-hover:opacity-100 transition-all"
                         >
-                          <X size={18} />
+                          <Trash2 size={18} />
                         </button>
                       </div>
                     </div>

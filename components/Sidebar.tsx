@@ -11,10 +11,13 @@ import {
   ChevronDown,
   User,
   LogOut,
-  X
+  X,
+  Shield,
+  Download
 } from 'lucide-react';
 import { UserProfile } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
+import { DownloadModal } from './DownloadModal';
 
 interface SidebarProps {
   activePage: string;
@@ -31,6 +34,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
     avatarUrl: '',
     isPremium: false
   });
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
+  const [isInstallable, setIsInstallable] = useState(false);
+  const [showDownloadModal, setShowDownloadModal] = useState(false);
 
   const loadProfile = async () => {
     const { data: { user } } = await supabase.auth.getUser();
@@ -48,15 +55,52 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
           avatarUrl: profileData.avatar_url || '',
           isPremium: profileData.is_premium || false
         });
+        setIsAdmin(profileData.is_admin || false);
+      } else {
+        // Fallback or handle case where profile doesn't exist yet
+        setIsAdmin(user.email === 'joao69.pvh@gmail.com');
       }
+    } else {
+      setIsAdmin(false);
     }
   };
 
   useEffect(() => {
     loadProfile();
-    window.addEventListener('storage', loadProfile);
-    return () => window.removeEventListener('storage', loadProfile);
+
+    const handleBeforeInstallPrompt = (e: any) => {
+      e.preventDefault();
+      setDeferredPrompt(e);
+      setIsInstallable(true);
+    };
+
+    window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+
+    // Listen for auth changes to update admin status in real-time
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (event === 'SIGNED_IN' || event === 'TOKEN_REFRESHED' || event === 'USER_UPDATED') {
+        loadProfile();
+      } else if (event === 'SIGNED_OUT') {
+        setIsAdmin(false);
+        setProfile({ name: '', email: '', avatarUrl: '', isPremium: false });
+      }
+    });
+
+    return () => {
+      subscription.unsubscribe();
+      window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
+    };
   }, []);
+
+  const handleInstallClick = async () => {
+    if (!deferredPrompt) return;
+    deferredPrompt.prompt();
+    const { outcome } = await deferredPrompt.userChoice;
+    if (outcome === 'accepted') {
+      setDeferredPrompt(null);
+      setIsInstallable(false);
+    }
+  };
 
   // Fechar menu mobile ao clicar em um link
   useEffect(() => {
@@ -70,6 +114,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
     { id: 'finances', icon: BarChart3, label: 'Finanças', path: '/finances' },
     { id: 'settings', icon: Settings, label: 'Perfil', path: '/profile' },
   ];
+
+  if (isAdmin) {
+    navItems.push({ id: 'admin', icon: Shield, label: 'Admin', path: '/admin' });
+  }
 
   return (
     <aside className={`
@@ -94,7 +142,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
           <X size={20} />
         </button>
       </div>
-
       <nav className="flex-1 px-3 lg:px-6 space-y-2 py-4 overflow-y-auto">
         {navItems.map((item) => {
           const isActive = activePage === item.id;
@@ -114,6 +161,18 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
             </Link>
           );
         })}
+
+        {/* Universal Download Button - Always Visible */}
+        <button
+          onClick={() => isInstallable ? handleInstallClick() : setShowDownloadModal(true)}
+          className="flex w-full items-center gap-4 px-4 py-3.5 rounded-xl transition-all text-primary bg-primary/5 hover:bg-primary/10 border border-primary/20 mt-4 group"
+        >
+          <div className="relative">
+            <Download size={24} className="group-hover:scale-110 transition-transform" />
+            <span className="absolute -top-1 -right-1 size-2 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(19,236,91,0.5)]"></span>
+          </div>
+          <span className="font-bold">Baixar App</span>
+        </button>
       </nav>
 
       <div className="px-6 mb-4">
@@ -150,6 +209,12 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
           </button>
         </div>
       </div>
-    </aside>
+      <DownloadModal
+        isOpen={showDownloadModal}
+        onClose={() => setShowDownloadModal(false)}
+        onInstall={handleInstallClick}
+        isInstallable={isInstallable}
+      />
+    </aside >
   );
 };

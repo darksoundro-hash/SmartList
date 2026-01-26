@@ -19,6 +19,8 @@ import { DashboardSkeleton } from '../components/Skeleton';
 import { useToast } from '../components/ToastContext';
 import { GroceryList, Notification } from '../types';
 import { supabase } from '../SmartList/services/src/lib/supabase';
+import { useSubscription } from '../components/SubscriptionContext';
+import { PaywallModal } from '../components/PaywallModal';
 
 // Card background image is now handled via static asset
 const CARD_BG_IMAGE = '/assets/card_bg.png';
@@ -29,10 +31,25 @@ const DashboardContent: React.FC = () => {
   const location = useLocation();
   const { openMobileMenu } = useMobileMenu();
   const { addToast } = useToast();
+
+  // Subscription Hook
+  const { checkLimits } = useSubscription();
+  const [showPaywall, setShowPaywall] = useState(false);
+  const [paywallMessage, setPaywallMessage] = useState('');
+
   const [isLoading, setIsLoading] = useState(true);
   const [lists, setLists] = useState<GroceryList[]>([]);
   const [userName, setUserName] = useState<string>('');
   const [viewMode, setViewMode] = useState<'grid' | 'list'>('grid');
+
+  const handleCreateList = () => {
+    if (!checkLimits.canCreateList(lists.length)) {
+      setPaywallMessage(`Você atingiu o limite de ${2} listas do plano Grátis.`);
+      setShowPaywall(true);
+      return;
+    }
+    navigate('/create-list');
+  };
 
   // Notification State
   const [showNotifications, setShowNotifications] = useState(false);
@@ -289,11 +306,12 @@ const DashboardContent: React.FC = () => {
               Gerencie suas compras com eficiência e inteligência.
             </p>
           </div>
-          <button onClick={() => navigate('/create-list')} className="bg-primary hover:bg-[#0fdc50] text-background-dark h-12 md:h-14 px-8 rounded-full font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_-6px_rgba(19,236,91,0.4)] whitespace-nowrap w-full md:w-auto">
-            <PlusCircle size={24} />
-            Criar Nova Lista
-          </button>
         </div>
+        <button onClick={handleCreateList} className="bg-primary hover:bg-[#0fdc50] text-background-dark h-12 md:h-14 px-8 rounded-full font-bold flex items-center justify-center gap-2 transition-all hover:scale-105 active:scale-95 shadow-[0_8px_20px_-6px_rgba(19,236,91,0.4)] whitespace-nowrap w-full md:w-auto">
+          <PlusCircle size={24} />
+          Criar Nova Lista
+        </button>
+        {/* Container closed correctly at the end of content */}
 
         <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
           <div className="bg-white dark:bg-surface-dark p-6 rounded-[2rem] flex flex-col justify-between min-h-[160px] md:min-h-[180px] relative overflow-hidden group hover:ring-1 hover:ring-primary/30 transition-all duration-300 border border-gray-100 dark:border-white/5">
@@ -355,7 +373,7 @@ const DashboardContent: React.FC = () => {
             : "flex flex-col gap-4"
           }>
             {viewMode === 'grid' && (
-              <button onClick={() => navigate('/create-list')} className="group relative flex flex-col items-center justify-center h-[340px] rounded-[2rem] border-2 border-dashed border-slate-300 dark:border-white/10 bg-transparent hover:bg-primary/5 hover:border-primary transition-all duration-300 min-h-[300px]">
+              <button onClick={handleCreateList} className="group relative flex flex-col items-center justify-center h-[340px] rounded-[2rem] border-2 border-dashed border-slate-300 dark:border-white/10 bg-transparent hover:bg-primary/5 hover:border-primary transition-all duration-300 min-h-[300px]">
                 <div className="size-20 rounded-full bg-slate-100 dark:bg-white/5 flex items-center justify-center mb-5 group-hover:scale-110 group-hover:bg-primary group-hover:text-background-dark transition-all duration-300 shadow-sm">
                   <PlusCircle size={32} className="text-slate-400 group-hover:text-background-dark" />
                 </div>
@@ -451,6 +469,11 @@ const DashboardContent: React.FC = () => {
             ))}
           </div>
         </section>
+        <PaywallModal
+          isOpen={showPaywall}
+          onClose={() => setShowPaywall(false)}
+          message={paywallMessage}
+        />
       </div>
     </>
   );

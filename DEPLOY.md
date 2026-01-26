@@ -19,7 +19,6 @@ Na tela de configuração do projeto, adicione as seguintes variáveis de ambien
 ```
 VITE_SUPABASE_URL=https://ynmlyuqcuuwwicpnmkkk.supabase.co
 VITE_SUPABASE_ANON_KEY=sua_chave_anon_aqui
-GEMINI_API_KEY=sua_chave_gemini_aqui
 ```
 
 > ⚠️ **IMPORTANTE**: Substitua os valores acima pelas suas chaves reais do Supabase e Google Gemini.

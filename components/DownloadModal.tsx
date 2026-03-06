@@ -49,25 +49,31 @@ export const DownloadModal: React.FC<DownloadModalProps> = ({ isOpen, onClose, o
 
                 {!showConfirmation ? (
                     <>
-                        <div className="size-32 bg-primary rounded-[2.5rem] flex items-center justify-center text-background-dark shadow-[0_0_40px_rgba(19,236,91,0.4)] cursor-pointer hover:scale-110 active:scale-95 transition-all duration-300 group relative" onClick={handleAction}>
-                            <ShoppingCart size={64} fill="currentColor" />
-                            <div className="absolute -inset-2 rounded-[2.7rem] border-2 border-primary/30 animate-ping opacity-20 pointer-events-none"></div>
-                        </div>
-
-                        {/* Platform Symbols */}
-                        <div className="flex items-center gap-4">
-                            <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center text-green-500 border border-white/5">
-                                <Smartphone size={20} />
+                        <button
+                            onClick={handleAction}
+                            className="flex flex-col items-center gap-6 group focus:outline-none w-full"
+                            aria-label="Baixar Aplicativo"
+                        >
+                            <div className="size-32 bg-primary rounded-[2.5rem] flex items-center justify-center text-background-dark shadow-[0_0_40px_rgba(19,236,91,0.4)] cursor-pointer group-hover:scale-110 group-active:scale-95 transition-all duration-300 relative">
+                                <ShoppingCart size={64} fill="currentColor" />
+                                <div className="absolute -inset-2 rounded-[2.7rem] border-2 border-primary/30 animate-ping opacity-20 pointer-events-none"></div>
                             </div>
-                            <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white border border-white/5">
-                                <Apple size={20} />
-                            </div>
-                        </div>
 
-                        <div className="text-center space-y-2">
-                            <h2 className="text-2xl font-black text-white tracking-tight">SmartList App</h2>
-                            <p className="text-primary font-bold uppercase tracking-[0.2em] text-xs">Toque para baixar</p>
-                        </div>
+                            {/* Platform Symbols */}
+                            <div className="flex items-center gap-4">
+                                <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center text-green-500 border border-white/5 transition-colors group-hover:bg-white/10 group-active:bg-white/20">
+                                    <Smartphone size={20} />
+                                </div>
+                                <div className="size-10 rounded-xl bg-white/5 flex items-center justify-center text-white border border-white/5 transition-colors group-hover:bg-white/10 group-active:bg-white/20">
+                                    <Apple size={20} />
+                                </div>
+                            </div>
+
+                            <div className="text-center space-y-2">
+                                <h2 className="text-2xl font-black text-white tracking-tight group-hover:text-primary transition-colors">SmartList App</h2>
+                                <p className="text-primary font-bold uppercase tracking-[0.2em] text-xs">Toque para baixar</p>
+                            </div>
+                        </button>
 
                         <button
                             onClick={onClose}

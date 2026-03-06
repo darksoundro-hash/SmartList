@@ -115,7 +115,20 @@ const DashboardContent: React.FC = () => {
         .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        if (error.message === 'Failed to fetch') {
+          // Tentativa de carregar do cache offline
+          const cachedData = localStorage.getItem('smartlist_dashboard_cache');
+          if (cachedData) {
+            addToast('Você está offline. Mostrando dados em cache.', 'warn');
+            setLists(JSON.parse(cachedData));
+          } else {
+            addToast('Você está offline e não possui dados em cache.', 'error');
+          }
+          return;
+        }
+        throw error;
+      }
 
       if (data) {
         // Simulate a small delay for the skeleton effect to be visible and premium feeling
@@ -141,6 +154,9 @@ const DashboardContent: React.FC = () => {
           progress: 0,
           estimatedTotal: 0
         }));
+
+        // Salvar no Cache
+        localStorage.setItem('smartlist_dashboard_cache', JSON.stringify(mappedLists));
         setLists(mappedLists);
       }
 

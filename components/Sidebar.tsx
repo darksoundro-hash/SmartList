@@ -183,7 +183,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
       </div>
 
       <div className="p-4 lg:p-6 mt-auto border-t border-gray-200 dark:border-white/5">
-        <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-surface-dark rounded-2xl border border-transparent dark:border-white/5 hover:border-primary/30 transition-colors group">
+        <div className="flex items-center justify-between p-3 bg-slate-100 dark:bg-surface-dark rounded-2xl border border-transparent dark:border-white/5 hover:border-primary/30 transition-colors group relative overflow-hidden">
+          {profile.isPremium && (
+            <div className="absolute top-0 right-0 px-2 py-0.5 bg-primary text-[8px] font-black uppercase text-background-dark rounded-bl-lg">PRO</div>
+          )}
           <div
             onClick={() => navigate('/profile')}
             className="flex items-center gap-3 flex-1 cursor-pointer min-w-0"
@@ -191,7 +194,10 @@ export const Sidebar: React.FC<SidebarProps> = ({ activePage, isMobileMenuOpen, 
             <div className="size-10 rounded-full bg-cover bg-center ring-2 ring-white dark:ring-white/10" style={{ backgroundImage: `url('${profile.avatarUrl || `https://ui-avatars.com/api/?name=${profile.name || 'U'}&background=13ec5b&color=0b1810`}')` }}></div>
             <div className="flex flex-col overflow-hidden min-w-0 flex-1">
               <p className="text-sm font-bold truncate text-slate-900 dark:text-white group-hover:text-primary transition-colors">{profile.name}</p>
-              <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{profile.isPremium ? 'Usuário Premium' : 'Usuário Free'}</p>
+              <div className="flex items-center gap-1">
+                <p className="text-xs text-slate-500 dark:text-slate-400 truncate">{profile.isPremium ? 'Plano Premium' : 'Plano Free'}</p>
+                {profile.isPremium && <Sparkles size={10} className="text-primary animate-pulse" />}
+              </div>
             </div>
           </div>
           <button

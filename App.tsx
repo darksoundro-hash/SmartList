@@ -15,6 +15,7 @@ import Finances from './screens/Finances';
 import AdminDashboard from './screens/AdminDashboard';
 
 import { SubscriptionProvider } from './components/SubscriptionContext';
+import Presell from './screens/Presell';
 
 const App: React.FC = () => {
   return (
@@ -22,7 +23,8 @@ const App: React.FC = () => {
       <ToastProvider>
         <Router>
           <Routes>
-            <Route path="/" element={<Login />} />
+            <Route path="/" element={<Presell />} />
+            <Route path="/login" element={<Login />} />
             <Route path="/dashboard" element={<Dashboard />} />
             <Route path="/lists" element={<Dashboard />} />
             <Route path="/create-list" element={<CreateList />} />

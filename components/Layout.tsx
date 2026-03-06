@@ -1,5 +1,6 @@
 import React, { useState, useEffect, createContext, useContext } from 'react';
 import { Sidebar } from './Sidebar';
+import { WifiOff } from 'lucide-react';
 
 // Contexto para controlar o menu mobile de qualquer lugar do app
 interface MobileMenuContextType {
@@ -26,10 +27,25 @@ interface LayoutProps {
 
 export const Layout: React.FC<LayoutProps> = ({ children, activePage }) => {
     const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+    const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
     const openMobileMenu = () => setIsMobileMenuOpen(true);
     const closeMobileMenu = () => setIsMobileMenuOpen(false);
     const toggleMobileMenu = () => setIsMobileMenuOpen(prev => !prev);
+
+    // Monitorar status online/offline
+    useEffect(() => {
+        const handleOnline = () => setIsOffline(false);
+        const handleOffline = () => setIsOffline(true);
+
+        window.addEventListener('online', handleOnline);
+        window.addEventListener('offline', handleOffline);
+
+        return () => {
+            window.removeEventListener('online', handleOnline);
+            window.removeEventListener('offline', handleOffline);
+        };
+    }, []);
 
     // Prevent body scroll when mobile menu is open
     useEffect(() => {
@@ -61,6 +77,12 @@ export const Layout: React.FC<LayoutProps> = ({ children, activePage }) => {
                 />
 
                 <main className="flex-1 flex flex-col min-w-0 h-full overflow-hidden relative w-full">
+                    {isOffline && (
+                        <div className="bg-orange-500 text-white px-4 py-2 text-xs md:text-sm font-bold flex items-center justify-center gap-2 z-50 shadow-md">
+                            <WifiOff size={16} className="animate-pulse" />
+                            <span>Você está offline. O aplicativo está no modo de leitura utilizando dados em cache.</span>
+                        </div>
+                    )}
                     {children}
                 </main>
             </div>

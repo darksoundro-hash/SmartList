@@ -1,32 +1,29 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { supabase } from '../SmartList/services/src/lib/supabase';
+import { PLANS } from '../constants/plans';
 
 interface SubscriptionContextType {
     isPremium: boolean;
     isLoading: boolean;
+    plan: typeof PLANS.FREE | typeof PLANS.PREMIUM_MONTHLY;
     checkLimits: {
         canCreateList: (currentCount: number) => boolean;
         canAddItem: (currentCount: number) => boolean;
         canDeleteList: () => boolean;
     };
-    limits: {
-        maxLists: number;
-        maxItemsPerList: number;
-    };
+    refreshSubscription: () => Promise<void>;
 }
 
 const SubscriptionContext = createContext<SubscriptionContextType>({
     isPremium: false,
     isLoading: true,
+    plan: PLANS.FREE,
     checkLimits: {
         canCreateList: () => false,
         canAddItem: () => false,
         canDeleteList: () => false,
     },
-    limits: {
-        maxLists: 2,
-        maxItemsPerList: 5,
-    },
+    refreshSubscription: async () => { },
 });
 
 export const useSubscription = () => useContext(SubscriptionContext);
@@ -34,12 +31,7 @@ export const useSubscription = () => useContext(SubscriptionContext);
 export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
     const [isPremium, setIsPremium] = useState(false);
     const [isLoading, setIsLoading] = useState(true);
-
-    // Limites Hardcoded para Grátis
-    const LIMITS = {
-        maxLists: 2,
-        maxItemsPerList: 5,
-    };
+    const [currentPlan, setCurrentPlan] = useState<any>(PLANS.FREE);
 
     useEffect(() => {
         checkSubscriptionStatus();
@@ -47,21 +39,38 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const checkSubscriptionStatus = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser();
+            const { data: { user }, error: authError } = await supabase.auth.getUser();
+
+            if (authError && authError.message === 'Failed to fetch') {
+                console.warn('⚠️ Não foi possível conectar ao Supabase (Projeto pausado ou sem rede)');
+                setIsPremium(false);
+                setCurrentPlan(PLANS.FREE);
+                return;
+            }
+
             if (user) {
-                // Verificar status premium na tabela de profiles
-                const { data } = await supabase
+                const { data, error: profileError } = await supabase
                     .from('profiles')
                     .select('is_premium')
                     .eq('id', user.id)
                     .single();
 
-                if (data) {
-                    // Mapeando do banco snake_case para o estado camelCase
-                    setIsPremium(data.is_premium || false);
+                if (profileError && profileError.message === 'Failed to fetch') {
+                    setIsPremium(false);
+                    setCurrentPlan(PLANS.FREE);
+                    return;
                 }
+
+                if (data) {
+                    const premium = data.is_premium || false;
+                    setIsPremium(premium);
+                    setCurrentPlan(premium ? PLANS.PREMIUM_MONTHLY : PLANS.FREE);
+                }
+            } else {
+                setIsPremium(false);
+                setCurrentPlan(PLANS.FREE);
             }
-        } catch (error) {
+        } catch (error: any) {
             console.error('Erro ao verificar assinatura:', error);
         } finally {
             setIsLoading(false);
@@ -70,21 +79,24 @@ export const SubscriptionProvider: React.FC<{ children: React.ReactNode }> = ({ 
 
     const checkLimits = {
         canCreateList: (currentCount: number) => {
-            if (isPremium) return true;
-            return currentCount < LIMITS.maxLists;
+            return currentCount < currentPlan.limits.maxLists;
         },
         canAddItem: (currentCount: number) => {
-            if (isPremium) return true;
-            return currentCount < LIMITS.maxItemsPerList;
+            return currentCount < currentPlan.limits.maxItemsPerList;
         },
         canDeleteList: () => {
-            if (isPremium) return true;
-            return false; // Usuários grátis não podem excluir listas
+            return currentPlan.limits.canDeleteLists;
         },
     };
 
     return (
-        <SubscriptionContext.Provider value={{ isPremium, isLoading, checkLimits, limits: LIMITS }}>
+        <SubscriptionContext.Provider value={{
+            isPremium,
+            isLoading,
+            plan: currentPlan,
+            checkLimits,
+            refreshSubscription: checkSubscriptionStatus
+        }}>
             {children}
         </SubscriptionContext.Provider>
     );

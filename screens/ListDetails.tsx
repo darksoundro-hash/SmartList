@@ -24,7 +24,8 @@ import {
   Pencil,
   CreditCard,
   DollarSign,
-  Smartphone
+  Smartphone,
+  WifiOff
 } from 'lucide-react';
 import { GroceryItem, GroceryList, PaymentMethod } from '../types';
 
@@ -84,6 +85,20 @@ const ListDetails: React.FC = () => {
         .single();
 
       if (error || !data) {
+        if (error && error.message === 'Failed to fetch') {
+          // Fallback to cache
+          const cachedList = localStorage.getItem(`smartlist_list_cache_${id}`);
+          if (cachedList) {
+            const parsed = JSON.parse(cachedList);
+            setListData(parsed.listData);
+            setItems(parsed.items);
+            setTempBudget(parsed.listData.maxBudget?.toString() || '0');
+            setTempDate(parsed.listData.shoppingDate || '');
+            setTempName(parsed.listData.name);
+            setIsLoading(false);
+            return;
+          }
+        }
         console.error('Error fetching list:', error);
         setIsLoading(false);
         return;
@@ -110,6 +125,12 @@ const ListDetails: React.FC = () => {
         bought: item.bought,
         aisle: item.aisle,
         imageUrl: item.image_url
+      }));
+
+      // Salvar no Cache Local
+      localStorage.setItem(`smartlist_list_cache_${id}`, JSON.stringify({
+        listData: mappedList,
+        items: mappedItems
       }));
 
       setListData(mappedList);
@@ -143,6 +164,11 @@ const ListDetails: React.FC = () => {
 
   const handleAddItem = async (e?: React.FormEvent) => {
     if (e) e.preventDefault();
+
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para adicionar itens.");
+      return;
+    }
 
     // Check Limits - Max Items
     if (!checkLimits.canAddItem(items.length)) {
@@ -192,6 +218,10 @@ const ListDetails: React.FC = () => {
   };
 
   const toggleItem = async (itemId: string) => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para alterar itens.");
+      return;
+    }
     const item = items.find(i => i.id === itemId);
     if (!item) return;
 
@@ -212,6 +242,10 @@ const ListDetails: React.FC = () => {
   };
 
   const updateQuantity = async (itemId: string, delta: number) => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para alterar quantidades.");
+      return;
+    }
     const item = items.find(i => i.id === itemId);
     if (!item) return;
 
@@ -231,6 +265,10 @@ const ListDetails: React.FC = () => {
   };
 
   const updatePrice = async (itemId: string, price: string) => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para alterar preços.");
+      return;
+    }
     const numericPrice = parseFloat(price.replace(',', '.')) || 0;
 
     setItems(prev => prev.map(i => i.id === itemId ? { ...i, unitPrice: numericPrice } : i));
@@ -244,6 +282,10 @@ const ListDetails: React.FC = () => {
   };
 
   const deleteItem = async (itemId: string) => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para excluir itens.");
+      return;
+    }
     if (!window.confirm('Deseja realmente excluir este item da lista?')) return;
 
     const oldItems = [...items];
@@ -286,6 +328,11 @@ const ListDetails: React.FC = () => {
   };
 
   const confirmDeleteList = async () => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para excluir a lista.");
+      return;
+    }
+
     // Check Limits - Delete Block
     if (!checkLimits.canDeleteList()) {
       setShowDeleteModal(false);
@@ -343,6 +390,11 @@ const ListDetails: React.FC = () => {
   };
 
   const confirmPurchase = async () => {
+    if (!navigator.onLine) {
+      alert("Você está offline. Reconecte-se para finalizar a compra.");
+      return;
+    }
+
     if (!id || !listData) return;
 
     const { data: { user } } = await supabase.auth.getUser();
